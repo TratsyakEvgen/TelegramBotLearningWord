@@ -13,7 +13,9 @@ import java.util.stream.Collectors;
 @Setter
 public class BotPath {
 
-    private String command;
+    private static int MAX_LENGTH = 64;
+
+    private String path;
     private Map<String, String> parameters;
 
     public static BotPath parse(String path) throws NotValidPathException {
@@ -38,21 +40,25 @@ public class BotPath {
     }
 
     public static void validatePathWithParameters(String path) throws NotValidPathException {
-        validate(path, "(^/[\\p{IsAlphabetic}\\d]+)+(\\?([\\p{IsAlphabetic}\\d]+=[\\p{IsAlphabetic}\\d]+)" +
+        validate(path, "(/[\\p{IsAlphabetic}\\d]+)+(\\?([\\p{IsAlphabetic}\\d]+=[\\p{IsAlphabetic}\\d]+)" +
                 "(&[\\p{IsAlphabetic}\\d]+=[\\p{IsAlphabetic}\\d]+)*)?");
     }
 
     public static void validatePath(String path) throws NotValidPathException {
-        validate(path, "(^/[\\p{IsAlphabetic}\\d]+)+");
+        validate(path, "(/[\\p{IsAlphabetic}\\d]+)+");
     }
 
     private static void validate(String path, String regex) throws NotValidPathException {
+        int length = path.length();
+        if (length > MAX_LENGTH) {
+            throw new NotValidPathException("Path " + path +
+                    " is not valid, max length should be " + MAX_LENGTH + ", current length =" + length);
+        }
         boolean isValid = path.matches(regex);
-        if (!isValid){
+        if (!isValid) {
             throw new NotValidPathException("Path " + path + " is not valid");
         }
     }
-
 
 
 }

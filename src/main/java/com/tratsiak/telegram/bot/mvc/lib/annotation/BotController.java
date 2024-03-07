@@ -1,4 +1,4 @@
-package com.tratsiak.telegram.bot.mvc.lib.controller;
+package com.tratsiak.telegram.bot.mvc.lib.annotation;
 
 import org.springframework.stereotype.Component;
 

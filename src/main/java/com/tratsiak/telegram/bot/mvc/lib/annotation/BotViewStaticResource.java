@@ -1,4 +1,5 @@
-package com.tratsiak.telegram.bot.mvc.lib.controller;
+package com.tratsiak.telegram.bot.mvc.lib.annotation;
+
 
 import org.springframework.stereotype.Component;
 
@@ -7,9 +8,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Component
-public @interface BotRequestMapping {
-    String path() default "";
+public @interface BotViewStaticResource {
 }

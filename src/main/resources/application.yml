@@ -1,2 +1,7 @@
 botToken: "6870480128:AAE_4j-zccYbX6POZvW3TeCGy5-SzCtMNwA"
 botName: "TestTelegramMVCbot"
+
+resource: http://localhost:8080/EnglishWords
+spring:
+  main:
+    web-application-type: none

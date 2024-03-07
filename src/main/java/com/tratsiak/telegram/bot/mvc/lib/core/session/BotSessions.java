@@ -1,7 +1,5 @@
-package com.tratsiak.telegram.bot.mvc.lib.session;
+package com.tratsiak.telegram.bot.mvc.lib.core.session;
 
-import com.tratsiak.telegram.bot.mvc.lib.util.BotPath;
-import com.tratsiak.telegram.bot.mvc.lib.util.NotValidPathException;
 import lombok.*;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -20,7 +18,7 @@ import java.util.Map;
 public class BotSessions {
     private Map<Long, Session> sessions = new HashMap<>();
 
-    public Session getOrElseCreate(Update update) throws BotSessionException {
+    public Session getOrElseCreate(Update update) {
         Session session;
 
         long userId;
@@ -31,19 +29,10 @@ public class BotSessions {
             userId = query.getFrom().getId();
 
             session = getOrElseCreate(userId);
+
+            session.setCurrentCommand(query.getData());
+            session.setNextCommand(null);
             session.setText(query.getMessage().getText());
-            String path = query.getData();
-
-            try {
-                if (path != null){
-                    BotPath botPath = BotPath.parse(query.getData());
-                    session.setCurrentCommand(botPath.getCommand());
-                    session.setParameters(botPath.getParameters());
-                }
-            } catch (NotValidPathException e) {
-                throw new BotSessionException("Can't parse path " + path, e);
-            }
-
 
 
         } else {
@@ -54,20 +43,28 @@ public class BotSessions {
 
             session = getOrElseCreate(userId);
 
-            String text = message.getText();
+            session.setText(message.getText());
+
+            session.setCurrentCommand(session.getNextCommand());
+            session.setNextCommand(null);
             if (message.isCommand()) {
                 session.setCurrentCommand("/start");
             }
-            session.setText(text);
+
         }
 
         return session;
     }
 
+
     private Session getOrElseCreate(long id) {
-        if (sessions.containsKey(id)) {
-            return sessions.get(id);
+
+        Session session = sessions.get(id);
+        if (session == null) {
+            session = new Session(id);
         }
-        return new Session(id);
+        sessions.put(session.getId(),session);
+
+        return session;
     }
 }
