@@ -1,9 +1,9 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.mapper;
 
+import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.util.BotPath;
 import com.tratsiak.telegram.bot.mvc.lib.util.NotValidPathException;
-import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

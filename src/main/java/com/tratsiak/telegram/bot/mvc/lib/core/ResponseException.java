@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.lib.core;
 
-public class ResponseException extends Exception{
+public class ResponseException extends Exception {
 
     public ResponseException() {
     }

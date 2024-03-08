@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.repository;
 
-public class RepositoryException extends Exception{
+public class RepositoryException extends Exception {
     public RepositoryException() {
     }
 

@@ -63,7 +63,7 @@ public class BotSessions {
         if (session == null) {
             session = new Session(id);
         }
-        sessions.put(session.getId(),session);
+        sessions.put(session.getId(), session);
 
         return session;
     }

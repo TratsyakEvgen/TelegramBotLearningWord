@@ -3,7 +3,6 @@ package com.tratsiak.telegram.bot.mvc.lib.core;
 import lombok.*;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 
-
 import java.util.ArrayList;
 import java.util.List;
 

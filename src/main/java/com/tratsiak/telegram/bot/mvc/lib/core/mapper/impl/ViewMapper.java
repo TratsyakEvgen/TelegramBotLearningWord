@@ -1,8 +1,8 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl;
 
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.AbstractMapper;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotStaticResource;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotViewStaticResource;
+import com.tratsiak.telegram.bot.mvc.lib.core.mapper.AbstractMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,13 +1,10 @@
 package com.tratsiak.telegram.bot.mvc.model;
 
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import java.io.File;
 import java.io.Serial;
 import java.io.Serializable;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Getter
@@ -30,8 +27,5 @@ public class Word implements Serializable {
     @JsonProperty("learningWord")
     private List<LearningWord> learningWords;
 
-    public File getAudio() {
-        return Paths.get("D:\\LearningWords\\" + english + ".mp3").toFile();
-    }
 
 }

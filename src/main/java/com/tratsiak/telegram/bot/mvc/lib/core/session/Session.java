@@ -23,14 +23,14 @@ public class Session {
         this.id = id;
     }
 
-    public void clearTemporary(){
+    public void clearTemporary() {
         pastCommand = currentCommand;
         text = null;
         currentCommand = null;
         parameters = null;
     }
 
-    public String getParam(String name){
+    public String getParam(String name) {
         return parameters.get(name);
     }
 

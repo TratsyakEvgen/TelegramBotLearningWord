@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.mapper;
 
-public class MapperException extends Exception{
+public class MapperException extends Exception {
 
     public MapperException() {
     }

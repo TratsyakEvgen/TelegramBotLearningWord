@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
+import java.io.File;
 import java.util.List;
 
 @Component
@@ -92,8 +93,8 @@ public class ViewWord {
         return new BotView(sendMessage);
     }
 
-    public BotView sound(long id, Word word) {
-        return new BotView(compSendAudio.get(id, word.getAudio()));
+    public BotView sound(long id, File file) {
+        return new BotView(compSendAudio.get(id, file));
     }
 
     private String wordToString(Word word) {

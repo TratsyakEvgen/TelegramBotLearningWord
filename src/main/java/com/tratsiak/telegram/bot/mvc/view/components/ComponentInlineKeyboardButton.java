@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 @Component
 public class ComponentInlineKeyboardButton {
 
-    public InlineKeyboardButton get(String text, String callbackData){
+    public InlineKeyboardButton get(String text, String callbackData) {
         return InlineKeyboardButton.builder().text(text).callbackData(callbackData).build();
     }
 }
