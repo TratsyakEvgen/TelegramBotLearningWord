@@ -1,5 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.controller;
 
+import com.tratsiak.telegram.bot.mvc.controller.util.TokenExtractor;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotController;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotRequestMapping;
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
@@ -33,7 +34,7 @@ public class WordController {
 
     @BotRequestMapping(path = "/find")
     private BotView getWords(Session session) throws ResponseException, RepositoryException {
-        List<Word> words = wordRepository.getWords(session.getText());
+        List<Word> words = wordRepository.getWords(session.getText(), TokenExtractor.access(session));
         if (words.isEmpty()) {
             throw new ResponseException("Not found!");
         }
@@ -43,14 +44,14 @@ public class WordController {
 
     @BotRequestMapping(path = "/get")
     private BotView getWord(Session session) throws RepositoryException {
-        Word word = wordRepository.get(Long.parseLong(session.getParam("id")));
+        Word word = wordRepository.get(Long.parseLong(session.getParam("id")), TokenExtractor.access(session));
         assert word != null;
         return viewWord.word(session.getId(), word);
     }
 
     @BotRequestMapping(path = "/getAudio")
     private BotView getAudio(Session session) throws RepositoryException {
-        Word word = wordRepository.get(Long.parseLong(session.getParam("id")));
+        Word word = wordRepository.get(Long.parseLong(session.getParam("id")), TokenExtractor.access(session));
         File file = audioRepository.getAudioFile(word.getEnglish());
         return viewWord.sound(session.getId(), file);
     }

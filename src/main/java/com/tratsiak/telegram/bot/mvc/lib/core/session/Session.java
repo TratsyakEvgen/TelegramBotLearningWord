@@ -2,6 +2,7 @@ package com.tratsiak.telegram.bot.mvc.lib.core.session;
 
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @NoArgsConstructor
@@ -17,7 +18,7 @@ public class Session {
     private String currentCommand;
     private String nextCommand;
     private Map<String, String> parameters;
-    private Map<String, Object> entities;
+    private Map<String, Object> entities = new HashMap<>();
 
     public Session(long id) {
         this.id = id;
@@ -33,6 +34,14 @@ public class Session {
     public String getParam(String name) {
         return parameters.get(name);
     }
+    public Object getEntity(String name) {
+        return entities.get(name);
+    }
+
+    public void setEntity(String name, Object object) {
+        entities.put(name, object);
+    }
+
 
 
 }

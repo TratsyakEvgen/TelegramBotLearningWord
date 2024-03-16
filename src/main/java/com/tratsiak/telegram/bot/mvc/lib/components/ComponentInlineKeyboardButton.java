@@ -1,4 +1,4 @@
-package com.tratsiak.telegram.bot.mvc.view.components;
+package com.tratsiak.telegram.bot.mvc.lib.components;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;

@@ -5,6 +5,7 @@ import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MapperException;
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl.ControllerMapper;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSessions;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionException;
 import com.tratsiak.telegram.bot.mvc.lib.util.BotPath;
 import com.tratsiak.telegram.bot.mvc.lib.util.NotValidPathException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +52,22 @@ public class BotMVC extends TelegramLongPollingBot {
                 execute(new AnswerCallbackQuery(update.getCallbackQuery().getId()));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
+                return;
             }
         }
 
-        Session session = botSessions.getOrElseCreate(update);
+        Session session = null;
+        try {
+            session = botSessions.getSession(update);
+        } catch (SessionException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (session == null){
+            return;
+        }
+
         String command = session.getCurrentCommand();
 
 
@@ -62,9 +75,11 @@ public class BotMVC extends TelegramLongPollingBot {
             session.clearTemporary();
             return;
         }
+
         try {
             BotView botView = executeCommand(command, session);
             send(botView.getSendingMessages());
+
         } catch (MapperException e) {
             Throwable cause = findCause(e);
             if (cause instanceof ResponseException) {

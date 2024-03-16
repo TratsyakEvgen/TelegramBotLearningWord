@@ -1,12 +1,13 @@
 package com.tratsiak.telegram.bot.mvc.view;
 
+import com.tratsiak.telegram.bot.mvc.lib.components.ComponentInlineKeyboardButton;
+import com.tratsiak.telegram.bot.mvc.lib.components.ComponentInlineKeyboardMarkup;
+import com.tratsiak.telegram.bot.mvc.lib.components.ComponentSendAudio;
+import com.tratsiak.telegram.bot.mvc.lib.components.ComponentSendMessage;
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.model.LearningWord;
 import com.tratsiak.telegram.bot.mvc.model.Word;
-import com.tratsiak.telegram.bot.mvc.view.components.ComponentInlineKeyboardButton;
-import com.tratsiak.telegram.bot.mvc.view.components.ComponentInlineKeyboardMarkup;
-import com.tratsiak.telegram.bot.mvc.view.components.ComponentSendAudio;
-import com.tratsiak.telegram.bot.mvc.view.components.ComponentSendMessage;
+import com.tratsiak.telegram.bot.mvc.view.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,31 +24,30 @@ public class ViewWord {
     private final ComponentInlineKeyboardMarkup compInlineMarkup;
     private final ComponentSendAudio compSendAudio;
 
+    private final WordUtil wordUtil;
+
 
     @Autowired
     public ViewWord(ComponentSendMessage compSendMsg,
                     ComponentInlineKeyboardButton compInlineBtn,
                     ComponentInlineKeyboardMarkup compInlineMarkup,
-                    ComponentSendAudio compSendAudio) {
+                    ComponentSendAudio compSendAudio,
+                    WordUtil wordUtil) {
         this.compSendMsg = compSendMsg;
         this.compInlineBtn = compInlineBtn;
         this.compInlineMarkup = compInlineMarkup;
         this.compSendAudio = compSendAudio;
-
+        this.wordUtil = wordUtil;
     }
 
     public BotView findWords(long id, List<Word> words) {
 
         InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder = InlineKeyboardMarkup.builder();
-        StringBuilder stringBuilder = new StringBuilder();
-        words.forEach(word -> {
-            stringBuilder.append(wordToString(word));
-            stringBuilder.append("\n\n");
-            compInlineMarkup.row(builder, compInlineBtn.get(word.getEnglish(),
-                    "/words/get?id=" + word.getId()));
-        });
+        String wordsAsString = wordUtil.getListWordAsKeyboard(words, builder);
 
-        SendMessage sendMessage = compSendMsg.get(id, stringBuilder.toString(), builder.build());
+        compInlineMarkup.row(builder, compInlineBtn.get("Go to back", "/start"));
+
+        SendMessage sendMessage = compSendMsg.get(id, wordsAsString, builder.build());
         sendMessage.enableHtml(true);
 
         return new BotView(sendMessage);
@@ -57,7 +57,7 @@ public class ViewWord {
     public BotView word(long id, Word word) {
 
         List<LearningWord> learningWords = word.getLearningWords();
-        InlineKeyboardMarkup.InlineKeyboardMarkupBuilder markupBuilder = InlineKeyboardMarkup.builder();
+        InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder = InlineKeyboardMarkup.builder();
         long wordId = word.getId();
 
         if (!learningWords.isEmpty()) {
@@ -68,26 +68,26 @@ public class ViewWord {
             String isLearned = status ? "Mark as unlearned" : "Mark as learned";
             String callback = status ? "/learningWords/update?status=false&id=" + learningWordId
                     : "/learningWords/update?status=true&id=" + learningWordId;
-            compInlineMarkup.row(markupBuilder, List.of(compInlineBtn.get(isLearned, callback),
+            compInlineMarkup.row(builder, List.of(compInlineBtn.get(isLearned, callback),
                             compInlineBtn.get("Delete", "/learningWords/delete?id=" + learningWordId)
                     )
             );
-            compInlineMarkup.row(markupBuilder,
-                    compInlineBtn.get("Statistic", "/learningWords/statistic?id=" + learningWordId)
+            compInlineMarkup.row(builder,
+                    compInlineBtn.get("Statistic", "/learningWords/statistic?id=" + wordId)
             );
 
         } else {
-            compInlineMarkup.row(markupBuilder, compInlineBtn.get("Add", "/learningWords/add?id=" + wordId));
+            compInlineMarkup.row(builder, compInlineBtn.get("Add to dictionary", "/learningWords/add?id=" + wordId));
         }
 
 
         if (word.isSound()) {
-            compInlineMarkup.row(markupBuilder, compInlineBtn.get("Sound", "/words/getAudio?id=" + wordId));
+            compInlineMarkup.row(builder, compInlineBtn.get("Sound", "/words/getAudio?id=" + wordId));
         }
 
-        compInlineMarkup.row(markupBuilder, compInlineBtn.get("Back", "/start"));
+        compInlineMarkup.row(builder, compInlineBtn.get("Go to back", "/start"));
 
-        SendMessage sendMessage = compSendMsg.get(id, wordToString(word), markupBuilder.build());
+        SendMessage sendMessage = compSendMsg.get(id, wordUtil.getWordAsSting(word), builder.build());
         sendMessage.enableHtml(true);
 
         return new BotView(sendMessage);
@@ -97,20 +97,5 @@ public class ViewWord {
         return new BotView(compSendAudio.get(id, file));
     }
 
-    private String wordToString(Word word) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("<b>English: </b>");
-        builder.append(word.getEnglish());
-
-        String transcription = word.getTranscription();
-        if (transcription != null) {
-            builder.append("\n<b>Transcription: </b>");
-            builder.append(transcription);
-        }
-
-        builder.append("\n<b>Russian: </b>");
-        builder.append(word.getRussian());
-        return builder.toString();
-    }
 
 }

@@ -16,6 +16,8 @@ import java.util.List;
 
 @Repository
 public class WordRepositoryImpl implements WordRepository {
+
+    private static final String AUTH = "Authorization";
     private final WebClient webClient;
 
     @Autowired
@@ -24,13 +26,14 @@ public class WordRepositoryImpl implements WordRepository {
     }
 
     @Override
-    public Word get(long id) throws RepositoryException {
+    public Word get(long id, String access) throws RepositoryException {
         try {
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/words/" + id)
                             .build())
                     .accept(MediaType.APPLICATION_JSON)
+                    .header(AUTH, access)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, error -> Mono.error(
                             new RuntimeException(String.valueOf(error.statusCode()))))
@@ -42,7 +45,7 @@ public class WordRepositoryImpl implements WordRepository {
     }
 
     @Override
-    public List<Word> getWords(String part) throws RepositoryException {
+    public List<Word> getWords(String part, String access) throws RepositoryException {
         try {
             Page<Word> page = webClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -52,6 +55,7 @@ public class WordRepositoryImpl implements WordRepository {
                             .queryParam("size", "5")
                             .build())
                     .accept(MediaType.APPLICATION_JSON)
+                    .header(AUTH, access)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, error -> Mono.error(
                             new RuntimeException(String.valueOf(error.statusCode()))))

@@ -6,3 +6,5 @@ audio: D:\LearningWords\
 spring:
   main:
     web-application-type: none
+telegram.username: TelegramMVC
+telegram.password: TelegramBotMVC
