@@ -20,7 +20,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.List;
 
 @Component
 public class BotMVC extends TelegramLongPollingBot {
@@ -46,54 +45,63 @@ public class BotMVC extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-
-        if (update.hasCallbackQuery()) {
-            try {
+        Session session;
+        try {
+            if (update.hasCallbackQuery()) {
                 execute(new AnswerCallbackQuery(update.getCallbackQuery().getId()));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            }
+            session = botSessions.getSession(update);
+
+            if (session == null) {
                 return;
             }
-        }
-
-        Session session = null;
-        try {
-            session = botSessions.getSession(update);
-        } catch (SessionException e) {
+        } catch (TelegramApiException | SessionException e) {
             e.printStackTrace();
             return;
         }
 
-        if (session == null){
-            return;
-        }
 
-        String command = session.getCurrentCommand();
-
-
-        if (command == null) {
-            session.clearTemporary();
-            return;
-        }
+        String path = session.getCurrentCommand();
 
         try {
-            BotView botView = executeCommand(command, session);
-            send(botView.getSendingMessages());
+            BotPath botPath = BotPath.parse(path);
+            path = botPath.getPath();
 
-        } catch (MapperException e) {
-            Throwable cause = findCause(e);
-            if (cause instanceof ResponseException) {
-                sendExceptionMessage(session.getId(), cause.getMessage());
-            } else {
-                e.printStackTrace();
-                sendExceptionMessage(session.getId(), "Error!!!");
+            session.setCurrentCommand(botPath.getPath());
+            session.setParameters(botPath.getParameters());
+
+            BotView botView = controllerMapper.executeMethod(path, session);
+
+            if (botView == null) {
+                botView = viewMapper.executeMethod(path, session);
             }
-        } catch (IllegalAccessException | InvocationTargetException | NotValidPathException e) {
+
+            if (botView == null) {
+                sendExceptionMessage(session.getId());
+                return;
+            }
+
+            for (PartialBotApiMethod<?> sendingMessage : botView.getSendingMessages()) {
+
+                Class<?> classMessage = sendingMessage.getClass();
+                Arrays.stream(TelegramLongPollingBot.class.getMethods())
+                        .filter(method -> method.getName().equals("execute"))
+                        .filter(method -> Arrays.stream(method.getParameterTypes())
+                                .allMatch(p -> p.equals(classMessage) | p.isAssignableFrom(classMessage)))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Method execute(" + classMessage + ") not found"))
+                        .invoke(this, sendingMessage);
+
+            }
+
+
+        } catch (MapperException | NotValidPathException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
-            sendExceptionMessage(session.getId(), "Error!!!");
-        } finally {
-            session.clearTemporary();
+            sendExceptionMessage(session.getId());
         }
+
+        session.clearTemporary();
+
     }
 
 
@@ -103,56 +111,11 @@ public class BotMVC extends TelegramLongPollingBot {
     }
 
 
-    private BotView executeCommand(String path, Session session) throws NotValidPathException, MapperException {
-        BotPath botPath = BotPath.parse(path);
-        path = botPath.getPath();
-        session.setCurrentCommand(botPath.getPath());
-        session.setParameters(botPath.getParameters());
-
-        BotView botView = controllerMapper.executeMethod(path, session);
-
-        if (botView == null) {
-            botView = viewMapper.executeMethod(path, session);
-        }
-
-        if (botView == null) {
-            throw new MapperException("Path " + path + " not found");
-        }
-
-
-        return botView;
-    }
-
-    private void send(List<PartialBotApiMethod<?>> partialBotApiMethods)
-            throws InvocationTargetException, IllegalAccessException {
-        for (PartialBotApiMethod<?> sendingMessage : partialBotApiMethods) {
-
-            Class<?> classMessage = sendingMessage.getClass();
-            Arrays.stream(TelegramLongPollingBot.class.getMethods())
-                    .filter(method -> method.getName().equals("execute"))
-                    .filter(method -> Arrays.stream(method.getParameterTypes())
-                            .allMatch(p -> p.equals(classMessage) | p.isAssignableFrom(classMessage)))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Method execute(" + classMessage + ") not found"))
-                    .invoke(this, sendingMessage);
-
-        }
-    }
-
-
-    private void sendExceptionMessage(long id, String text) {
+    private void sendExceptionMessage(long id) {
         try {
-            execute(SendMessage.builder().chatId(id).text(text).build());
+            execute(SendMessage.builder().chatId(id).text("Error!!!").build());
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-    }
-
-    private Throwable findCause(Throwable throwable) {
-        Throwable rootCause = throwable;
-        while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
-            rootCause = rootCause.getCause();
-        }
-        return rootCause;
     }
 }

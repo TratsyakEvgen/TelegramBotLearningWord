@@ -2,7 +2,10 @@ package com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl;
 
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotStaticResource;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotViewStaticResource;
+import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.AbstractMapper;
+import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MapperException;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +28,11 @@ public class ViewMapper extends AbstractMapper {
     public ViewMapper(ApplicationContext context) {
         methodsMap = new HashMap<>();
         this.context = context;
+    }
+
+    @Override
+    protected BotView exceptionHandler(Exception e, Method method, Session session) throws MapperException {
+        throw new MapperException("Can't execute method " + method, e);
     }
 
     @Override

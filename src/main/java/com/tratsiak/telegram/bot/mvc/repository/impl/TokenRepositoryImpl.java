@@ -1,9 +1,11 @@
 package com.tratsiak.telegram.bot.mvc.repository.impl;
 
-import com.tratsiak.telegram.bot.mvc.model.AuthTelegramApp;
+import com.tratsiak.telegram.bot.mvc.model.bean.AuthTelegramApp;
 import com.tratsiak.telegram.bot.mvc.model.Token;
-import com.tratsiak.telegram.bot.mvc.repository.RepositoryException;
+import com.tratsiak.telegram.bot.mvc.model.bean.ErrorResponse;
 import com.tratsiak.telegram.bot.mvc.repository.TokenRepository;
+import com.tratsiak.telegram.bot.mvc.repository.exception.LevelException;
+import com.tratsiak.telegram.bot.mvc.repository.exception.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -29,8 +31,11 @@ public class TokenRepositoryImpl implements TokenRepository {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(auth)
                     .retrieve()
-                    .onStatus(HttpStatusCode::isError, error -> Mono.error(
-                            new RuntimeException(String.valueOf(error.statusCode()))))
+                    .onStatus(HttpStatusCode::isError, resp -> resp.bodyToMono(ErrorResponse.class)
+                            .flatMap(error -> Mono.error(
+                                    new RuntimeException(error.toString())
+                            ))
+                    )
                     .bodyToMono(Token.class)
                     .block();
         } catch (RuntimeException e) {
@@ -47,8 +52,11 @@ public class TokenRepositoryImpl implements TokenRepository {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(token)
                     .retrieve()
-                    .onStatus(HttpStatusCode::isError, error -> Mono.error(
-                            new RuntimeException(String.valueOf(error.statusCode()))))
+                    .onStatus(HttpStatusCode::isError, resp -> resp.bodyToMono(ErrorResponse.class)
+                            .flatMap(error -> Mono.error(
+                                    new RuntimeException(error.toString())
+                            ))
+                    )
                     .bodyToMono(Token.class)
                     .block();
         } catch (RuntimeException e) {

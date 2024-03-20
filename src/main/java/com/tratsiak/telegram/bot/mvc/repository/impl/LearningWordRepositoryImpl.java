@@ -2,9 +2,10 @@ package com.tratsiak.telegram.bot.mvc.repository.impl;
 
 import com.tratsiak.telegram.bot.mvc.model.LearningWord;
 import com.tratsiak.telegram.bot.mvc.model.Page;
-import com.tratsiak.telegram.bot.mvc.model.Word;
+import com.tratsiak.telegram.bot.mvc.model.bean.ErrorResponse;
 import com.tratsiak.telegram.bot.mvc.repository.LearningWordRepository;
-import com.tratsiak.telegram.bot.mvc.repository.RepositoryException;
+import com.tratsiak.telegram.bot.mvc.repository.exception.LevelException;
+import com.tratsiak.telegram.bot.mvc.repository.exception.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
@@ -14,14 +15,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Repository
-public class LearningWordRepositoryImpl implements LearningWordRepository {
-    private static final String AUTH = "Authorization";
-
-    private final WebClient webClient;
+public class LearningWordRepositoryImpl extends WebClientRepository implements LearningWordRepository {
 
     @Autowired
     public LearningWordRepositoryImpl(WebClient webClient) {
-        this.webClient = webClient;
+        super(webClient);
     }
 
     @Override
@@ -36,13 +34,19 @@ public class LearningWordRepositoryImpl implements LearningWordRepository {
                     .accept(MediaType.APPLICATION_JSON)
                     .header(AUTH, access)
                     .retrieve()
-                    .onStatus(HttpStatusCode::isError, error -> Mono.error(
-                            new RuntimeException(String.valueOf(error.statusCode()))))
+                    .onStatus(HttpStatusCode::isError, resp -> resp.bodyToMono(ErrorResponse.class)
+                            .flatMap(error -> Mono.error(
+                                    new RepositoryException(LevelException.INFO, error.getMessage(), error.toString())
+                            ))
+                    )
                     .bodyToMono(new ParameterizedTypeReference<Page<LearningWord>>() {
                     })
                     .block();
+        } catch (RepositoryException e) {
+            throw e;
         } catch (RuntimeException e) {
-            throw new RepositoryException("Can't get learning words by page: " + page, e);
+            throw new RepositoryException(LevelException.ERROR, "Can't get dictionary",
+                    String.format("WebClient exception! page %d, access %s", page, access), e);
         }
     }
 
@@ -57,12 +61,18 @@ public class LearningWordRepositoryImpl implements LearningWordRepository {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(body)
                     .retrieve()
-                    .onStatus(HttpStatusCode::isError, error -> Mono.error(
-                            new RuntimeException(String.valueOf(error.statusCode()))))
+                    .onStatus(HttpStatusCode::isError, resp -> resp.bodyToMono(ErrorResponse.class)
+                            .flatMap(error -> Mono.error(
+                                    new RepositoryException(LevelException.INFO, error.getMessage(), error.toString())
+                            ))
+                    )
                     .bodyToMono(LearningWord.class)
                     .block();
+        } catch (RepositoryException e) {
+            throw e;
         } catch (RuntimeException e) {
-            throw new RepositoryException("Can't create learning word by id word " + wordId, e);
+            throw new RepositoryException(LevelException.ERROR, "Can't add to dictionary",
+                    String.format("WebClient exception! page %d, access %s", wordId, access), e);
         }
 
     }
@@ -78,12 +88,18 @@ public class LearningWordRepositoryImpl implements LearningWordRepository {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(body)
                     .retrieve()
-                    .onStatus(HttpStatusCode::isError, error -> Mono.error(
-                            new RuntimeException(String.valueOf(error.statusCode()))))
+                    .onStatus(HttpStatusCode::isError, resp -> resp.bodyToMono(ErrorResponse.class)
+                            .flatMap(error -> Mono.error(
+                                    new RepositoryException(LevelException.INFO, error.getMessage(), error.toString())
+                            ))
+                    )
                     .bodyToMono(LearningWord.class)
                     .block();
+        } catch (RepositoryException e) {
+            throw e;
         } catch (RuntimeException e) {
-            throw new RepositoryException(String.format("Can't update learning word %d status %b", id, status), e);
+            throw new RepositoryException(LevelException.ERROR, "Can't update",
+                    String.format("WebClient exception! id %d, status %b access %s", id, status, access), e);
         }
     }
 
@@ -95,12 +111,18 @@ public class LearningWordRepositoryImpl implements LearningWordRepository {
                     .accept(MediaType.APPLICATION_JSON)
                     .header(AUTH, access)
                     .retrieve()
-                    .onStatus(HttpStatusCode::isError, error -> Mono.error(
-                            new RuntimeException(String.valueOf(error.statusCode()))))
+                    .onStatus(HttpStatusCode::isError, resp -> resp.bodyToMono(ErrorResponse.class)
+                            .flatMap(error -> Mono.error(
+                                    new RepositoryException(LevelException.INFO, error.getMessage(), error.toString())
+                            ))
+                    )
                     .bodyToMono(LearningWord.class)
                     .block();
+        } catch (RepositoryException e) {
+            throw e;
         } catch (RuntimeException e) {
-            throw new RepositoryException("Can't delete learning word " + id, e);
+            throw new RepositoryException(LevelException.ERROR, "Can't delete",
+                    String.format("WebClient exception! id %d, access %s", id, access), e);
         }
     }
 }

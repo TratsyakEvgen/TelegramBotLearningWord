@@ -45,7 +45,7 @@ public class BotSessions {
 
             session.setCurrentCommand(query.getData());
             session.setNextCommand(null);
-            session.setText(query.getMessage().getText());
+           // session.setText(query.getMessage().getText());
 
         } else {
             Message message;

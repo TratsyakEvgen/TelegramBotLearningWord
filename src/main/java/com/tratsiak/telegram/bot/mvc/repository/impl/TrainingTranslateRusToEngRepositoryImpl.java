@@ -1,35 +1,35 @@
 package com.tratsiak.telegram.bot.mvc.repository.impl;
 
-import com.tratsiak.telegram.bot.mvc.model.Page;
-import com.tratsiak.telegram.bot.mvc.model.Word;
+import com.tratsiak.telegram.bot.mvc.model.TrainingTranslateRusToEng;
 import com.tratsiak.telegram.bot.mvc.model.bean.ErrorResponse;
-import com.tratsiak.telegram.bot.mvc.repository.WordRepository;
+import com.tratsiak.telegram.bot.mvc.repository.TrainingTranslateRusToEngRepository;
 import com.tratsiak.telegram.bot.mvc.repository.exception.LevelException;
 import com.tratsiak.telegram.bot.mvc.repository.exception.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Repository
-public class WordRepositoryImpl extends WebClientRepository implements WordRepository {
+public class TrainingTranslateRusToEngRepositoryImpl implements TrainingTranslateRusToEngRepository {
+
+    private static final String AUTH = "Authorization";
+    private final WebClient webClient;
 
     @Autowired
-    public WordRepositoryImpl(WebClient webClient) {
-        super(webClient);
+    public TrainingTranslateRusToEngRepositoryImpl(WebClient webClient) {
+        this.webClient = webClient;
     }
 
     @Override
-    public Word get(long id, String access) throws RepositoryException {
+    public TrainingTranslateRusToEng get(boolean isLearned, String access) throws RepositoryException {
         try {
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/words/" + id)
+                            .path("/trainingsRusToEng")
+                            .queryParam("isLearned", isLearned)
                             .build())
                     .accept(MediaType.APPLICATION_JSON)
                     .header(AUTH, access)
@@ -39,42 +39,44 @@ public class WordRepositoryImpl extends WebClientRepository implements WordRepos
                                     new RepositoryException(LevelException.INFO, error.getMessage(), error.toString())
                             ))
                     )
-                    .bodyToMono(Word.class)
+                    .bodyToMono(TrainingTranslateRusToEng.class)
                     .block();
         } catch (RepositoryException e) {
             throw e;
         } catch (RuntimeException e) {
-            throw new RepositoryException(LevelException.ERROR, "Can't get word",
-                    String.format("WebClient exception! id %d, access %s", id, access), e);
+            throw new RepositoryException(LevelException.ERROR, "Can't get training translate russian to english",
+                    String.format("WebClient exception! isLearned %b, access %s", isLearned, access), e);
         }
     }
 
     @Override
-    public Page<Word> getWords(String part, int page, String access) throws RepositoryException {
+    public long check(long learningWordId, long answer, String access) throws RepositoryException {
         try {
-            return webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/words")
-                            .queryParam("part", part)
-                            .queryParam("page", page)
-                            .queryParam("size", "5")
-                            .build())
+            String body = String.format("{\"learningWordId\": %d, \"answer\": %d }", learningWordId, answer);
+            String result = webClient.post()
+                    .uri(uriBuilder -> uriBuilder.path("/trainingsRusToEng").build())
                     .accept(MediaType.APPLICATION_JSON)
                     .header(AUTH, access)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(body)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, resp -> resp.bodyToMono(ErrorResponse.class)
                             .flatMap(error -> Mono.error(
                                     new RepositoryException(LevelException.INFO, error.getMessage(), error.toString())
                             ))
                     )
-                    .bodyToMono(new ParameterizedTypeReference<Page<Word>>() {
-                    })
+                    .bodyToMono(String.class)
                     .block();
+            assert result != null;
+            return Long.parseLong(result);
+        } catch (RepositoryException e) {
+            throw e;
         } catch (RuntimeException e) {
-            throw new RepositoryException(LevelException.ERROR, "Can't get words",
-                    String.format("WebClient exception! part %s, access %s", part, access), e);
+            throw new RepositoryException(LevelException.ERROR,
+                    "Can't get training translate russian to english",
+                    String.format("WebClient exception! learningWordId %d, answer %d, access %s",
+                            learningWordId, answer, access),
+                    e);
         }
     }
-
-
 }

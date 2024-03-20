@@ -44,7 +44,7 @@ public class StaticResource {
 
     @BotStaticResource(path = "/static/findWord")
     private BotView findWord(Session session) {
-        session.setNextCommand("/words/find");
+        session.setNextCommand("/words/find?page=0");
         return new BotView(compSendMsg.get(session.getId(), "Enter word or part of it:"));
     }
 
@@ -59,7 +59,7 @@ public class StaticResource {
         compInlineMarkup.row(builder,
                 compInlineBtn.get("Translate English to Russian", "/static/trainings/select?type=engToRus"));
         compInlineMarkup.row(builder,
-                compInlineBtn.get("Translate English to Russian", "static/trainings/select?type=rusTuEng"));
+                compInlineBtn.get("Translate Russian to English", "static/trainings/select?type=rusTuEng"));
         return new BotView(compSendMsg.get(session.getId(), "Choose training:", builder.build()));
     }
 
@@ -67,8 +67,8 @@ public class StaticResource {
     private BotView select(Session session) {
         String type = session.getParam("type");
         return new BotView(compSendMsg.get(session.getId(), "Choose training:", compInlineMarkup.get(List.of(
-                compInlineBtn.get("Learn words", String.format("/trainings?type=%s&isLearn=true", type)),
-                compInlineBtn.get("Repeat words", String.format("/trainings?type=%s&isLearn=false", type))
+                compInlineBtn.get("Learn words", String.format("/trainings/%s/get?isLearned=false", type)),
+                compInlineBtn.get("Repeat words", String.format("/trainings/%s/get?&isLearned=true", type))
         ))));
     }
 

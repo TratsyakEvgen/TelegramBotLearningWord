@@ -1,7 +1,8 @@
 package com.tratsiak.telegram.bot.mvc.repository.impl;
 
 import com.tratsiak.telegram.bot.mvc.repository.AudioRepository;
-import com.tratsiak.telegram.bot.mvc.repository.RepositoryException;
+import com.tratsiak.telegram.bot.mvc.repository.exception.LevelException;
+import com.tratsiak.telegram.bot.mvc.repository.exception.RepositoryException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -22,9 +23,8 @@ public class AudioRepositoryImpl implements AudioRepository {
     public File getAudioFile(String word) throws RepositoryException {
         try {
             return Paths.get(audio + word + ".mp3").toFile();
-        } catch (
-                InvalidPathException e) {
-            throw new RepositoryException("Can't get audio file " + word);
+        } catch (InvalidPathException e) {
+            throw new RepositoryException(LevelException.WARM, "Sound not found ","Can't get audio file " + word, e);
         }
 
     }

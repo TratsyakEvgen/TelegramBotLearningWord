@@ -1,4 +1,4 @@
-package com.tratsiak.telegram.bot.mvc.model;
+package com.tratsiak.telegram.bot.mvc.model.bean;
 
 import lombok.*;
 

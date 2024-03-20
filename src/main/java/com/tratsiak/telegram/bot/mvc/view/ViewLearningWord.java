@@ -7,16 +7,15 @@ import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.model.LearningWord;
 import com.tratsiak.telegram.bot.mvc.model.Page;
 import com.tratsiak.telegram.bot.mvc.model.Word;
+import com.tratsiak.telegram.bot.mvc.view.util.PageUtil;
 import com.tratsiak.telegram.bot.mvc.view.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -26,16 +25,18 @@ public class ViewLearningWord {
     private final ComponentInlineKeyboardMarkup compInlineMarkup;
     private final ComponentInlineKeyboardButton compInlineBtn;
     private final WordUtil wordUtil;
+    private final PageUtil pageUtil;
 
     @Autowired
     public ViewLearningWord(ComponentSendMessage compSendMsg,
                             ComponentInlineKeyboardMarkup compInlineMarkup,
                             ComponentInlineKeyboardButton compInlineBtn,
-                            WordUtil wordUtil) {
+                            WordUtil wordUtil, PageUtil pageUtil) {
         this.compSendMsg = compSendMsg;
         this.compInlineMarkup = compInlineMarkup;
         this.compInlineBtn = compInlineBtn;
         this.wordUtil = wordUtil;
+        this.pageUtil = pageUtil;
     }
 
     public BotView delete(long id) {
@@ -58,15 +59,15 @@ public class ViewLearningWord {
         Timestamp rusToEngDate = learningWord.getTrainingRusToEngDate();
         SimpleDateFormat simpleDateFormat = null;
 
-        if (engToRusDate != null || rusToEngDate != null){
+        if (engToRusDate != null || rusToEngDate != null) {
             simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         }
 
-        if (engToRusDate != null){
+        if (engToRusDate != null) {
             engToRusDateAsString = simpleDateFormat.format(engToRusDate);
         }
 
-        if (rusToEngDate != null){
+        if (rusToEngDate != null) {
             rusToEngDateAsString = simpleDateFormat.format(rusToEngDate);
         }
 
@@ -115,28 +116,8 @@ public class ViewLearningWord {
             wordsAsString = wordUtil.getListWordAsKeyboard(words, builder);
         }
 
-        int totalPage = wordPage.getTotalPages();
-        int currentPage = wordPage.getNumber();
 
-        List<InlineKeyboardButton> navbar = null;
-
-        if (totalPage > 1) {
-            navbar = new ArrayList<>();
-        }
-
-        if (currentPage > 0) {
-            assert navbar != null;
-            navbar.add(compInlineBtn.get("<<", "/learningWords/dictionary?page=0"));
-            navbar.add(compInlineBtn.get("<", "/learningWords/dictionary?page=" + (currentPage - 1)));
-        }
-
-        if (totalPage != 0 && currentPage < totalPage - 1) {
-            assert navbar != null;
-            navbar.add(compInlineBtn.get(">", "/learningWords/dictionary?page=" + (currentPage + 1)));
-            navbar.add(compInlineBtn.get(">>", "/learningWords/dictionary?page=" + (totalPage - 1)));
-        }
-
-        compInlineMarkup.row(builder, navbar);
+        compInlineMarkup.row(builder, pageUtil.getNavbar(wordPage, "/learningWords/dictionary?"));
         compInlineMarkup.row(builder, compInlineBtn.get("Go to back", "/start"));
 
         SendMessage sendMessage = compSendMsg.get(id, wordsAsString, builder.build());

@@ -28,13 +28,17 @@ public abstract class AbstractMapper implements Mapper {
             return null;
         }
 
-        try {
-            return (BotView) methodOfObject.method.invoke(methodOfObject.object, session);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new MapperException("Can't execute method " + methodOfObject.method, e);
-        }
+        BotView botView;
 
+        try {
+            botView = (BotView) methodOfObject.method.invoke(methodOfObject.object, session);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            botView = exceptionHandler(e, methodOfObject.method, session);
+        }
+        return botView;
     }
+
+    protected abstract BotView exceptionHandler(Exception e, Method method, Session session) throws MapperException;
 
     @PostConstruct
     protected abstract void init();
@@ -50,9 +54,8 @@ public abstract class AbstractMapper implements Mapper {
     }
 
     @AllArgsConstructor
-    public static class MethodOfObject {
+    protected static class MethodOfObject {
         private Object object;
         private Method method;
-
     }
 }

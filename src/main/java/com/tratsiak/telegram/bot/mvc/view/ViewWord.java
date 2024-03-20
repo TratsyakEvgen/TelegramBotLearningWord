@@ -6,7 +6,9 @@ import com.tratsiak.telegram.bot.mvc.lib.components.ComponentSendAudio;
 import com.tratsiak.telegram.bot.mvc.lib.components.ComponentSendMessage;
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.model.LearningWord;
+import com.tratsiak.telegram.bot.mvc.model.Page;
 import com.tratsiak.telegram.bot.mvc.model.Word;
+import com.tratsiak.telegram.bot.mvc.view.util.PageUtil;
 import com.tratsiak.telegram.bot.mvc.view.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ public class ViewWord {
     private final ComponentSendAudio compSendAudio;
 
     private final WordUtil wordUtil;
+    private final PageUtil pageUtil;
 
 
     @Autowired
@@ -32,19 +35,25 @@ public class ViewWord {
                     ComponentInlineKeyboardButton compInlineBtn,
                     ComponentInlineKeyboardMarkup compInlineMarkup,
                     ComponentSendAudio compSendAudio,
-                    WordUtil wordUtil) {
+                    WordUtil wordUtil,
+                    PageUtil pageUtil) {
         this.compSendMsg = compSendMsg;
         this.compInlineBtn = compInlineBtn;
         this.compInlineMarkup = compInlineMarkup;
         this.compSendAudio = compSendAudio;
         this.wordUtil = wordUtil;
+        this.pageUtil = pageUtil;
     }
 
-    public BotView findWords(long id, List<Word> words) {
+    public BotView findWords(long id, String part, Page<Word> wordPage) {
+
+        if (wordPage.getTotalElements() == 0) {
+            return new BotView(compSendMsg.get(id,  "Not found"));
+        }
 
         InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder = InlineKeyboardMarkup.builder();
-        String wordsAsString = wordUtil.getListWordAsKeyboard(words, builder);
-
+        String wordsAsString = wordUtil.getListWordAsKeyboard(wordPage.getContent(), builder);
+        compInlineMarkup.row(builder, pageUtil.getNavbar(wordPage, String.format("/words/find?part=%s&", part)));
         compInlineMarkup.row(builder, compInlineBtn.get("Go to back", "/start"));
 
         SendMessage sendMessage = compSendMsg.get(id, wordsAsString, builder.build());
@@ -82,7 +91,7 @@ public class ViewWord {
 
 
         if (word.isSound()) {
-            compInlineMarkup.row(builder, compInlineBtn.get("Sound", "/words/getAudio?id=" + wordId));
+            compInlineMarkup.row(builder, compInlineBtn.get("Sound", "/words/getAudio?file=" + word.getEnglish()));
         }
 
         compInlineMarkup.row(builder, compInlineBtn.get("Go to back", "/start"));
