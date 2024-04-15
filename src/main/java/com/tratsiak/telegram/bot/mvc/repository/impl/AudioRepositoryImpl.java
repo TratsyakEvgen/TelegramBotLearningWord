@@ -24,7 +24,7 @@ public class AudioRepositoryImpl implements AudioRepository {
         try {
             return Paths.get(audio + word + ".mp3").toFile();
         } catch (InvalidPathException e) {
-            throw new RepositoryException(LevelException.WARM, "Sound not found ","Can't get audio file " + word, e);
+            throw new RepositoryException(LevelException.WARM, "Sound not found ", "Can't get audio file " + word, e);
         }
 
     }

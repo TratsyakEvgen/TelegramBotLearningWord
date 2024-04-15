@@ -48,13 +48,15 @@ public class ViewWord {
     public BotView findWords(long id, String part, Page<Word> wordPage) {
 
         if (wordPage.getTotalElements() == 0) {
-            return new BotView(compSendMsg.get(id,  "Not found"));
+            return new BotView(compSendMsg.get(id, "Not found"));
         }
 
         InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder = InlineKeyboardMarkup.builder();
         String wordsAsString = wordUtil.getListWordAsKeyboard(wordPage.getContent(), builder);
-        compInlineMarkup.row(builder, pageUtil.getNavbar(wordPage, String.format("/words/find?part=%s&", part)));
-        compInlineMarkup.row(builder, compInlineBtn.get("Go to back", "/start"));
+
+        pageUtil.getNavbar(builder, wordPage, String.format("/words/find?part=%s&", part));
+
+        compInlineMarkup.row(builder, compInlineBtn.get("Go to main menu", "/start"));
 
         SendMessage sendMessage = compSendMsg.get(id, wordsAsString, builder.build());
         sendMessage.enableHtml(true);
@@ -77,10 +79,11 @@ public class ViewWord {
             String isLearned = status ? "Mark as unlearned" : "Mark as learned";
             String callback = status ? "/learningWords/update?status=false&id=" + learningWordId
                     : "/learningWords/update?status=true&id=" + learningWordId;
-            compInlineMarkup.row(builder, List.of(compInlineBtn.get(isLearned, callback),
-                            compInlineBtn.get("Delete", "/learningWords/delete?id=" + learningWordId)
-                    )
-            );
+            compInlineMarkup.row(builder, List.of(
+                    compInlineBtn.get(isLearned, callback),
+                    compInlineBtn.get("Delete", "/learningWords/delete?id=" + learningWordId)
+            ));
+
             compInlineMarkup.row(builder,
                     compInlineBtn.get("Statistic", "/learningWords/statistic?id=" + wordId)
             );
@@ -94,7 +97,7 @@ public class ViewWord {
             compInlineMarkup.row(builder, compInlineBtn.get("Sound", "/words/getAudio?file=" + word.getEnglish()));
         }
 
-        compInlineMarkup.row(builder, compInlineBtn.get("Go to back", "/start"));
+        compInlineMarkup.row(builder, compInlineBtn.get("Go to main menu", "/start"));
 
         SendMessage sendMessage = compSendMsg.get(id, wordUtil.getWordAsSting(word), builder.build());
         sendMessage.enableHtml(true);

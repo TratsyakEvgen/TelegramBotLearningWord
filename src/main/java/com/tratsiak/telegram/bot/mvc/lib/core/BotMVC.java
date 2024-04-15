@@ -8,6 +8,7 @@ import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionException;
 import com.tratsiak.telegram.bot.mvc.lib.util.BotPath;
 import com.tratsiak.telegram.bot.mvc.lib.util.NotValidPathException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 @Component
+@Slf4j
 public class BotMVC extends TelegramLongPollingBot {
 
     private final Mapper controllerMapper;
@@ -45,6 +47,17 @@ public class BotMVC extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        new Thread(() -> update(update)).start();
+    }
+
+
+    @Override
+    public String getBotUsername() {
+        return botName;
+    }
+
+
+    private void update(Update update) {
         Session session;
         try {
             if (update.hasCallbackQuery()) {
@@ -55,8 +68,11 @@ public class BotMVC extends TelegramLongPollingBot {
             if (session == null) {
                 return;
             }
-        } catch (TelegramApiException | SessionException e) {
-            e.printStackTrace();
+        } catch (TelegramApiException e) {
+            log.error("Error answer callback query", e);
+            return;
+        } catch (SessionException e) {
+            log.error("Session error", e);
             return;
         }
 
@@ -77,6 +93,7 @@ public class BotMVC extends TelegramLongPollingBot {
             }
 
             if (botView == null) {
+                log.error(String.format("Endpoint '%s' not found", path));
                 sendExceptionMessage(session.getId());
                 return;
             }
@@ -96,18 +113,11 @@ public class BotMVC extends TelegramLongPollingBot {
 
 
         } catch (MapperException | NotValidPathException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
+            log.error("Error execute method", e);
             sendExceptionMessage(session.getId());
         }
 
         session.clearTemporary();
-
-    }
-
-
-    @Override
-    public String getBotUsername() {
-        return botName;
     }
 
 
@@ -115,7 +125,7 @@ public class BotMVC extends TelegramLongPollingBot {
         try {
             execute(SendMessage.builder().chatId(id).text("Error!!!").build());
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Error send exception message", e);
         }
     }
 }

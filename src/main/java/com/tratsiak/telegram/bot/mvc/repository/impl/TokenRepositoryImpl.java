@@ -1,10 +1,9 @@
 package com.tratsiak.telegram.bot.mvc.repository.impl;
 
-import com.tratsiak.telegram.bot.mvc.model.bean.AuthTelegramApp;
 import com.tratsiak.telegram.bot.mvc.model.Token;
+import com.tratsiak.telegram.bot.mvc.model.bean.AuthTelegramApp;
 import com.tratsiak.telegram.bot.mvc.model.bean.ErrorResponse;
 import com.tratsiak.telegram.bot.mvc.repository.TokenRepository;
-import com.tratsiak.telegram.bot.mvc.repository.exception.LevelException;
 import com.tratsiak.telegram.bot.mvc.repository.exception.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;

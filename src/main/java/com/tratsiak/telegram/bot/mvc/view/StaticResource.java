@@ -8,6 +8,7 @@ import com.tratsiak.telegram.bot.mvc.lib.components.ComponentSendMessage;
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class StaticResource {
                 compInlineBtn.get("Trainings", "/static/trainings")
         ));
         compInlineMarkup.row(builder, List.of(
-                compInlineBtn.get("Help", "/static/help/language"),
+                compInlineBtn.get("Help", "/static/help"),
                 compInlineBtn.get("Write to the creator ", "/static/creator")
         ));
         return new BotView(compSendMsg.get(session.getId(), "Hello!", builder.build()));
@@ -59,17 +60,34 @@ public class StaticResource {
         compInlineMarkup.row(builder,
                 compInlineBtn.get("Translate English to Russian", "/static/trainings/select?type=engToRus"));
         compInlineMarkup.row(builder,
-                compInlineBtn.get("Translate Russian to English", "static/trainings/select?type=rusTuEng"));
+                compInlineBtn.get("Translate Russian to English", "/static/trainings/select?type=rusToEng"));
+        compInlineMarkup.row(builder, compInlineBtn.get("Go to main menu", "/start"));
         return new BotView(compSendMsg.get(session.getId(), "Choose training:", builder.build()));
     }
 
     @BotStaticResource(path = "/static/trainings/select")
     private BotView select(Session session) {
         String type = session.getParam("type");
-        return new BotView(compSendMsg.get(session.getId(), "Choose training:", compInlineMarkup.get(List.of(
-                compInlineBtn.get("Learn words", String.format("/trainings/%s/get?isLearned=false", type)),
-                compInlineBtn.get("Repeat words", String.format("/trainings/%s/get?&isLearned=true", type))
-        ))));
+        InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder = InlineKeyboardMarkup.builder();
+        compInlineMarkup.row(builder, List.of(
+                compInlineBtn.get("Learn words", String.format("/%s/get?isLearned=false", type)),
+                compInlineBtn.get("Repeat words", String.format("/%s/get?isLearned=true", type))
+        ));
+        compInlineMarkup.row(builder, List.of(
+                compInlineBtn.get("Go to back", "/static/trainings"),
+                compInlineBtn.get("Go to main menu", "/start")
+        ));
+        return new BotView(compSendMsg.get(session.getId(), "Choose training:", builder.build()));
+    }
+
+
+    @BotStaticResource(path = "/static/help")
+    private BotView helpEn(Session session) {
+        String text = "hrlp";
+        SendMessage sendMessage = compSendMsg.get(session.getId(), text,
+                compInlineMarkup.get(compInlineBtn.get("Go to main menu", "/start")));
+        sendMessage.enableHtml(true);
+        return new BotView(sendMessage);
     }
 
 

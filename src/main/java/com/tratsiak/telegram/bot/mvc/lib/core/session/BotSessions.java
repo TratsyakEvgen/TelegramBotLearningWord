@@ -8,15 +8,15 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @EqualsAndHashCode
 @ToString
 public class BotSessions {
 
-    private final Map<Long, Session> sessions = new HashMap<>();
+    private final Map<Long, Session> sessions = new ConcurrentHashMap<>();
     private final SessionInitializer sessionInitializer;
     private final SessionModifier sessionModifier;
 
@@ -39,13 +39,13 @@ public class BotSessions {
 
             session = getAndModify(userId);
 
-            if (session == null){
+            if (session == null) {
                 return null;
             }
 
             session.setCurrentCommand(query.getData());
             session.setNextCommand(null);
-           // session.setText(query.getMessage().getText());
+            // session.setText(query.getMessage().getText());
 
         } else {
             Message message;
@@ -55,7 +55,7 @@ public class BotSessions {
 
             session = getAndModify(userId);
 
-            if (session == null){
+            if (session == null) {
                 return null;
             }
 
@@ -85,7 +85,7 @@ public class BotSessions {
             }
         }
 
-        if (session != null){
+        if (session != null) {
             try {
                 sessionModifier.modify(session);
             } catch (Exception e) {

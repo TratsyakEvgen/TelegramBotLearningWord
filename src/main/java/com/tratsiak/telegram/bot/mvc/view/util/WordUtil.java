@@ -33,7 +33,7 @@ public class WordUtil {
         return string;
     }
 
-  public String getListWordAsKeyboard(List<Word> words, InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder) {
+    public String getListWordAsKeyboard(List<Word> words, InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder) {
         StringBuilder stringBuilder = new StringBuilder();
         words.forEach(word -> {
             stringBuilder.append(getWordAsSting(word));

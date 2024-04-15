@@ -99,7 +99,7 @@ public class ViewLearningWord {
                     compInlineMarkup.get(
                             List.of(
                                     compInlineBtn.get("Find word", "/static/findWord"),
-                                    compInlineBtn.get("Go to back", "/start")
+                                    compInlineBtn.get("Go to main menu", "/start")
                             )
                     )
             ));
@@ -116,9 +116,9 @@ public class ViewLearningWord {
             wordsAsString = wordUtil.getListWordAsKeyboard(words, builder);
         }
 
+        pageUtil.getNavbar(builder, wordPage, "/learningWords/dictionary?");
 
-        compInlineMarkup.row(builder, pageUtil.getNavbar(wordPage, "/learningWords/dictionary?"));
-        compInlineMarkup.row(builder, compInlineBtn.get("Go to back", "/start"));
+        compInlineMarkup.row(builder, compInlineBtn.get("Go to main menu", "/start"));
 
         SendMessage sendMessage = compSendMsg.get(id, wordsAsString, builder.build());
         sendMessage.enableHtml(true);

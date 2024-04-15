@@ -34,6 +34,7 @@ public class Session {
     public String getParam(String name) {
         return parameters.get(name);
     }
+
     public Object getEntity(String name) {
         return entities.get(name);
     }
@@ -41,7 +42,6 @@ public class Session {
     public void setEntity(String name, Object object) {
         entities.put(name, object);
     }
-
 
 
 }

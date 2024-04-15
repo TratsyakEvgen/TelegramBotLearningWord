@@ -14,8 +14,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Repository
 public class WordRepositoryImpl extends WebClientRepository implements WordRepository {
 

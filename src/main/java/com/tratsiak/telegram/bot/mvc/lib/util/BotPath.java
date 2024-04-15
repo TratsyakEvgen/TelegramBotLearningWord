@@ -49,7 +49,7 @@ public class BotPath {
     }
 
     private static void validate(String path, String regex) throws NotValidPathException {
-        if (path == null){
+        if (path == null) {
             throw new NotValidPathException("Path is null");
         }
         int length = path.length();

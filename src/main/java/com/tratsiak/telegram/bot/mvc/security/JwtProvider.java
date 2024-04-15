@@ -5,8 +5,8 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionModifier;
-import com.tratsiak.telegram.bot.mvc.model.bean.AuthTelegramApp;
 import com.tratsiak.telegram.bot.mvc.model.Token;
+import com.tratsiak.telegram.bot.mvc.model.bean.AuthTelegramApp;
 import com.tratsiak.telegram.bot.mvc.repository.TokenRepository;
 import com.tratsiak.telegram.bot.mvc.repository.exception.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class JwtProvider implements SessionModifier {
             return;
         }
 
-        if (isExpires(token.getAccess(), date)){
+        if (isExpires(token.getAccess(), date)) {
             try {
                 token = tokenRepository.updateToken(token);
                 session.setEntity(JWT_NAME, token);
@@ -75,7 +75,6 @@ public class JwtProvider implements SessionModifier {
             throw new JwtProviderException("Can't parse token", e);
         }
     }
-
 
 
 }

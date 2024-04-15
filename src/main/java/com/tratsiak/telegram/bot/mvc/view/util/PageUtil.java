@@ -1,9 +1,11 @@
 package com.tratsiak.telegram.bot.mvc.view.util;
 
 import com.tratsiak.telegram.bot.mvc.lib.components.ComponentInlineKeyboardButton;
+import com.tratsiak.telegram.bot.mvc.lib.components.ComponentInlineKeyboardMarkup;
 import com.tratsiak.telegram.bot.mvc.model.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
@@ -12,13 +14,15 @@ import java.util.List;
 @Component
 public class PageUtil {
     private final ComponentInlineKeyboardButton compInlineBtn;
+    private final ComponentInlineKeyboardMarkup compInlineMarkup;
 
     @Autowired
-    public PageUtil(ComponentInlineKeyboardButton compInlineBtn) {
+    public PageUtil(ComponentInlineKeyboardButton compInlineBtn, ComponentInlineKeyboardMarkup compInlineMarkup) {
         this.compInlineBtn = compInlineBtn;
+        this.compInlineMarkup = compInlineMarkup;
     }
 
-    public List<InlineKeyboardButton> getNavbar(Page<?> page, String path) {
+    public void getNavbar(InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder, Page<?> page, String path) {
 
         int totalPage = page.getTotalPages();
         int currentPage = page.getNumber();
@@ -41,6 +45,8 @@ public class PageUtil {
             navbar.add(compInlineBtn.get(">>", path + "page=" + (totalPage - 1)));
         }
 
-        return navbar;
+        if (navbar != null) {
+            compInlineMarkup.row(builder, navbar);
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.tratsiak.telegram.bot.mvc.lib.core.mapper;
 
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class ResponseException extends RuntimeException {

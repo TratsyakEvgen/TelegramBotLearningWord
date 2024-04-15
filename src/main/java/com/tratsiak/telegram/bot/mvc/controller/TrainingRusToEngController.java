@@ -6,27 +6,25 @@ import com.tratsiak.telegram.bot.mvc.lib.annotation.BotController;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotRequestMapping;
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
-import com.tratsiak.telegram.bot.mvc.model.TrainingTranslateEngToRus;
+import com.tratsiak.telegram.bot.mvc.model.TrainingTranslateRusToEng;
 import com.tratsiak.telegram.bot.mvc.model.Word;
 import com.tratsiak.telegram.bot.mvc.repository.LearningWordRepository;
-import com.tratsiak.telegram.bot.mvc.repository.TrainingTranslateEngToRusRepository;
+import com.tratsiak.telegram.bot.mvc.repository.TrainingTranslateRusToEngRepository;
 import com.tratsiak.telegram.bot.mvc.repository.WordRepository;
 import com.tratsiak.telegram.bot.mvc.repository.exception.RepositoryException;
 import com.tratsiak.telegram.bot.mvc.view.TrainingTranslate;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @BotController
-@BotRequestMapping(path = "/engToRus")
-public class TrainingEngToRusController {
+@BotRequestMapping(path = "/rusToEng")
+public class TrainingRusToEngController {
 
-    private final TrainingTranslateEngToRusRepository repository;
+    private final TrainingTranslateRusToEngRepository repository;
     private final LearningWordRepository learningWordRepository;
     private final WordRepository wordRepository;
     private final TrainingTranslate trainingTranslate;
     private final ExceptionHandler handler;
 
-    @Autowired
-    public TrainingEngToRusController(TrainingTranslateEngToRusRepository repository, LearningWordRepository learningWordRepository, WordRepository wordRepository, TrainingTranslate trainingTranslate, ExceptionHandler handler) {
+    public TrainingRusToEngController(TrainingTranslateRusToEngRepository repository, LearningWordRepository learningWordRepository, WordRepository wordRepository, TrainingTranslate trainingTranslate, ExceptionHandler handler) {
         this.repository = repository;
         this.learningWordRepository = learningWordRepository;
         this.wordRepository = wordRepository;
@@ -34,12 +32,13 @@ public class TrainingEngToRusController {
         this.handler = handler;
     }
 
+
     @BotRequestMapping(path = "/get")
     public BotView get(Session session) {
         boolean isLearned = Boolean.parseBoolean(session.getParam("isLearned"));
         try {
-            TrainingTranslateEngToRus engToRus = repository.get(isLearned, TokenExtractor.access(session));
-            return trainingTranslate.training(session.getId(), engToRus, isLearned);
+            TrainingTranslateRusToEng rusToEng = repository.get(isLearned, TokenExtractor.access(session));
+            return trainingTranslate.training(session.getId(), rusToEng, isLearned);
         } catch (RepositoryException e) {
             throw handler.handle(e);
         }
@@ -53,8 +52,8 @@ public class TrainingEngToRusController {
         boolean status = Boolean.parseBoolean(session.getParam("status"));
         try {
             learningWordRepository.update(id, status, TokenExtractor.access(session));
-            TrainingTranslateEngToRus engToRus = repository.get(!status, TokenExtractor.access(session));
-            return trainingTranslate.training(session.getId(), engToRus, !status);
+            TrainingTranslateRusToEng rusToEng = repository.get(!status, TokenExtractor.access(session));
+            return trainingTranslate.training(session.getId(), rusToEng, !status);
         } catch (RepositoryException e) {
             throw handler.handle(e);
         }
@@ -73,12 +72,12 @@ public class TrainingEngToRusController {
             long answer = repository.check(learningWordId, wordId, TokenExtractor.access(session));
 
             if (answer == wordId) {
-                TrainingTranslateEngToRus engToRus = repository.get(status, TokenExtractor.access(session));
-                return trainingTranslate.training(userId, engToRus, status);
+                TrainingTranslateRusToEng rusToEng = repository.get(status, TokenExtractor.access(session));
+                return trainingTranslate.training(userId, rusToEng, status);
             }
 
             Word word = wordRepository.get(answer, TokenExtractor.access(session));
-            return trainingTranslate.mistake(userId, word, "/engToRus/get?status=" + status);
+            return trainingTranslate.mistake(userId, word, "/rusToEng/get?status=" + status);
         } catch (RepositoryException e) {
             throw handler.handle(e);
         }

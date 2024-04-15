@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.session;
 
-public class SessionException extends Exception{
+public class SessionException extends Exception {
     public SessionException() {
     }
 
