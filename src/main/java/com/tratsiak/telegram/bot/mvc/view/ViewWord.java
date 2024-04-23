@@ -77,8 +77,9 @@ public class ViewWord {
             long learningWordId = learningWord.getId();
 
             String isLearned = status ? "Mark as unlearned" : "Mark as learned";
-            String callback = status ? "/learningWords/update?status=false&id=" + learningWordId
-                    : "/learningWords/update?status=true&id=" + learningWordId;
+
+            String callback = String.format("/learningWords/update?status=%b&id=%d", !status, learningWordId);
+
             compInlineMarkup.row(builder, List.of(
                     compInlineBtn.get(isLearned, callback),
                     compInlineBtn.get("Delete", "/learningWords/delete?id=" + learningWordId)

@@ -77,7 +77,7 @@ public class TrainingRusToEngController {
             }
 
             Word word = wordRepository.get(answer, TokenExtractor.access(session));
-            return trainingTranslate.mistake(userId, word, "/rusToEng/get?status=" + status);
+            return trainingTranslate.mistake(userId, word, "/rusToEng/get?isLearned=" + status);
         } catch (RepositoryException e) {
             throw handler.handle(e);
         }

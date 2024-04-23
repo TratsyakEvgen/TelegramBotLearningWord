@@ -68,7 +68,7 @@ public class TrainingTranslate {
             );
         }
 
-        String callback = status ? "/engToRus/update?status=false&id=" + id : "/engToRus/update?status=true&id=" + id;
+        String callback = String.format("/engToRus/update?status=%b&id=%d", !status, id);
 
         return getBotView(userId, status, builder, markupBuilder, callback);
     }
@@ -103,9 +103,7 @@ public class TrainingTranslate {
         InlineKeyboardMarkup.InlineKeyboardMarkupBuilder markupBuilder = InlineKeyboardMarkup.builder();
         compInlineMarkup.row(markupBuilder, buttons);
 
-
-        String callback = status ? "/rusToEng/update?status=false&id=" + id : "/rusToEng/update?status=true&id=" + id;
-
+        String callback =String.format("/rusToEng/update?status=%b&id=%d", !status, id);
 
         return getBotView(userId, status, builder, markupBuilder, callback);
     }

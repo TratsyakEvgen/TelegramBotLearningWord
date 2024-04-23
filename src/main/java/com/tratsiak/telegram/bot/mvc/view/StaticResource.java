@@ -58,9 +58,9 @@ public class StaticResource {
     private BotView trainings(Session session) {
         InlineKeyboardMarkup.InlineKeyboardMarkupBuilder builder = InlineKeyboardMarkup.builder();
         compInlineMarkup.row(builder,
-                compInlineBtn.get("Translate English to Russian", "/static/trainings/select?type=engToRus"));
+                compInlineBtn.get("English to Russian", "/static/trainings/select?type=engToRus"));
         compInlineMarkup.row(builder,
-                compInlineBtn.get("Translate Russian to English", "/static/trainings/select?type=rusToEng"));
+                compInlineBtn.get("Russian to English", "/static/trainings/select?type=rusToEng"));
         compInlineMarkup.row(builder, compInlineBtn.get("Go to main menu", "/start"));
         return new BotView(compSendMsg.get(session.getId(), "Choose training:", builder.build()));
     }
@@ -83,7 +83,22 @@ public class StaticResource {
 
     @BotStaticResource(path = "/static/help")
     private BotView helpEn(Session session) {
-        String text = "hrlp";
+        String text = """
+                1. Добавьте слова в личный словарь:
+                1.1 В главном меню выберете <b>Find word</b>
+                1.2 Ведите словно или его часть на русском или английском
+                1.3 Выберете необходимое слово из списка
+                1.4 Нажмите <b>Add to dictionary</b>
+                                
+                2. Изучайте выбранные слова:
+                2.1 В главном меню выберете <b>Trainings</b>
+                2.2 Выберете тип тренировки <b>English to Russian</b> или <b>Russian to English</b>
+                2.3 Выберете <b>Learn words</b>
+                                
+                3. Повторяйте слова:
+                3.1 Вы можете отметить слово как изученное нажав <b>Mark as learned</b> во время тренировки или в словаре
+                3.2 После того как у вас появятся выученные слова, вы можете их повторять выбрав в тренировке <b>Repeat words</b>
+                """;
         SendMessage sendMessage = compSendMsg.get(session.getId(), text,
                 compInlineMarkup.get(compInlineBtn.get("Go to main menu", "/start")));
         sendMessage.enableHtml(true);

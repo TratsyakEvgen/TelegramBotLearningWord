@@ -1,10 +1,23 @@
-botToken: "6870480128:AAE_4j-zccYbX6POZvW3TeCGy5-SzCtMNwA"
-botName: "TestTelegramMVCbot"
+botToken: "7184233396:AAF_faZqh_BJPv3FazplH73jzB9Cq4z26ws"
+botName: "LearnWordsEnglishBot"
 
 resource: http://localhost:8080/EnglishWords
-audio: D:\LearningWords\
+#audio: D:\LearningWords\
+audio: /opt/resources/
 spring:
   main:
     web-application-type: none
 telegram.username: TelegramMVC
 telegram.password: TelegramBotMVC
+
+logging:
+  file:
+    name: /opt/logs/EnglishWordsBot.log
+  logback:
+    rolling policy:
+      file-name-pattern: /opt/logs/EnglishWordsBot.%d{yyyy-MM-dd}.%i.log
+      max-file-size: 100KB
+      max-history: 30
+  level:
+    org.springframework: error
+    com.tratsiak.telegram.bot.mvc: info
