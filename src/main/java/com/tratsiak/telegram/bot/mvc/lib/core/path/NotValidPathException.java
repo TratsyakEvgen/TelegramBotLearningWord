@@ -1,4 +1,4 @@
-package com.tratsiak.telegram.bot.mvc.lib.util;
+package com.tratsiak.telegram.bot.mvc.lib.core.path;
 
 public class NotValidPathException extends Exception {
 

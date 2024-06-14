@@ -1,13 +1,15 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.mapper;
 
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
+import com.tratsiak.telegram.bot.mvc.lib.core.path.NotValidPathException;
+import com.tratsiak.telegram.bot.mvc.lib.core.path.PathValidator;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
-import com.tratsiak.telegram.bot.mvc.lib.util.BotPath;
-import com.tratsiak.telegram.bot.mvc.lib.util.NotValidPathException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,7 +23,10 @@ public abstract class AbstractMethodMapper implements MethodMapper {
 
     protected Map<String, MethodOfObject> methodsMap;
 
-    public AbstractMethodMapper() {
+    private final PathValidator pathValidator;
+
+    public AbstractMethodMapper(PathValidator pathValidator) {
+        this.pathValidator = pathValidator;
         this.methodsMap = new HashMap<>();
     }
 
@@ -50,7 +55,7 @@ public abstract class AbstractMethodMapper implements MethodMapper {
 
     protected void put(String finalPath, Method method, Object object) {
         try {
-            BotPath.validatePath(finalPath);
+            pathValidator.isValidPath(finalPath);
         } catch (NotValidPathException e) {
             throw new RuntimeException(e);
         }

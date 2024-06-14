@@ -6,11 +6,13 @@ import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.AbstractMethodMapper;
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperException;
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.ResponseException;
+import com.tratsiak.telegram.bot.mvc.lib.core.path.PathValidator;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -25,6 +27,10 @@ import java.util.Map;
 @ToString
 public class ControllerMethodMapper extends AbstractMethodMapper {
 
+    @Autowired
+    public ControllerMethodMapper(PathValidator pathValidator) {
+        super(pathValidator);
+    }
 
     @Override
     public void init(ApplicationContext context) {
@@ -72,8 +78,6 @@ public class ControllerMethodMapper extends AbstractMethodMapper {
         }
         throw new MethodMapperException("Can't execute method " + method, e);
     }
-
-
 
 
 }

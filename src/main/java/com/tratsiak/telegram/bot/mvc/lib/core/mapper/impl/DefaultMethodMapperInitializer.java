@@ -3,7 +3,6 @@ package com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl;
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapper;
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -15,6 +14,7 @@ import java.util.Map;
 public class DefaultMethodMapperInitializer implements MethodMapperInitializer {
 
     private final ApplicationContext context;
+    private Map<String, MethodMapper> methodMappers;
 
     @Autowired
     public DefaultMethodMapperInitializer(ApplicationContext context) {
@@ -24,8 +24,13 @@ public class DefaultMethodMapperInitializer implements MethodMapperInitializer {
     @Override
     @EventListener(classes = ContextRefreshedEvent.class)
     public void init() {
-        Map<String, MethodMapper> beansOfType = context.getBeansOfType(MethodMapper.class);
-        beansOfType.forEach((string, methodMapper) -> methodMapper.init(context));
+        methodMappers = context.getBeansOfType(MethodMapper.class);
+        methodMappers.forEach((string, methodMapper) -> methodMapper.init(context));
 
+    }
+
+    @Override
+    public Map<String, MethodMapper> getMethodMappers() {
+        return methodMappers;
     }
 }

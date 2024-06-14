@@ -2,13 +2,16 @@ package com.tratsiak.telegram.bot.mvc.lib.core;
 
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapper;
 import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperException;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl.ControllerMethodMapper;
+import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperInitializer;
+import com.tratsiak.telegram.bot.mvc.lib.core.path.NotValidPathException;
+import com.tratsiak.telegram.bot.mvc.lib.core.path.PathParser;
+import com.tratsiak.telegram.bot.mvc.lib.core.path.PathValidator;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSession;
-import com.tratsiak.telegram.bot.mvc.lib.core.session.impl.DefaultBotSession;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionException;
-import com.tratsiak.telegram.bot.mvc.lib.util.BotPath;
-import com.tratsiak.telegram.bot.mvc.lib.util.NotValidPathException;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.impl.DefaultBotSession;
+import com.tratsiak.telegram.bot.mvc.lib.util.reflection.method.executor.MethodExecutor;
+import com.tratsiak.telegram.bot.mvc.lib.util.reflection.method.executor.MethodExecutorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,34 +23,36 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.Collection;
 
 @Component
 @Slf4j
 public class BotMVC extends TelegramLongPollingBot {
 
-    private final MethodMapper controllerMethodMapper;
-    private final MethodMapper viewMethodMapper;
+    private final MethodMapperInitializer methodMapperInitializer;
+    private final PathValidator pathValidator;
+    private final PathParser pathParser;
+    private final MethodExecutor methodExecutor;
     private final BotSession botSession;
     private final String botName;
 
     @Autowired
     public BotMVC(@Value("${botToken}") String botToken,
+                  MethodMapperInitializer methodMapperInitializer, PathValidator pathValidator, PathParser pathParser, MethodExecutor methodExecutor,
                   @Value("${botName}") String botName,
-                  ControllerMethodMapper controllerMapper,
-                  MethodMapper viewMethodMapper,
                   DefaultBotSession botSession) {
         super(botToken);
-        this.controllerMethodMapper = controllerMapper;
+        this.methodMapperInitializer = methodMapperInitializer;
+        this.pathValidator = pathValidator;
+        this.pathParser = pathParser;
+        this.methodExecutor = methodExecutor;
         this.botName = botName;
-        this.viewMethodMapper = viewMethodMapper;
         this.botSession = botSession;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        new Thread(() -> update(update)).start();
+        new Thread(() -> sendAnswer(update)).start();
     }
 
 
@@ -57,22 +62,27 @@ public class BotMVC extends TelegramLongPollingBot {
     }
 
 
-    private void update(Update update) {
-        Session session;
+    private void sendAnswer(Update update) {
+
         try {
             if (update.hasCallbackQuery()) {
                 execute(new AnswerCallbackQuery(update.getCallbackQuery().getId()));
             }
-            session = botSession.getSession(update);
-
-            if (session == null) {
-                return;
-            }
         } catch (TelegramApiException e) {
             log.error("Error answer callback query", e);
             return;
+        }
+
+
+        Session session;
+        try {
+            session = botSession.getSession(update);
         } catch (SessionException e) {
             log.error("Session error", e);
+            return;
+        }
+
+        if (session == null) {
             return;
         }
 
@@ -80,16 +90,17 @@ public class BotMVC extends TelegramLongPollingBot {
         String path = session.getCurrentCommand();
 
         try {
-            BotPath botPath = BotPath.parse(path);
-            path = botPath.getPath();
+            pathValidator.isValidPathWithParams(path);
+            session.setCurrentCommand(pathParser.getPath(path));
+            session.setParameters(pathParser.getParam(path));
 
-            session.setCurrentCommand(botPath.getPath());
-            session.setParameters(botPath.getParameters());
-
-            BotView botView = controllerMethodMapper.executeMethod(path, session);
-
-            if (botView == null) {
-                botView = viewMethodMapper.executeMethod(path, session);
+            BotView botView = null;
+            Collection<MethodMapper> mappers = methodMapperInitializer.getMethodMappers().values();
+            for (MethodMapper mapper : mappers) {
+                botView = mapper.executeMethod(path, session);
+                if (botView != null) {
+                    break;
+                }
             }
 
             if (botView == null) {
@@ -99,20 +110,11 @@ public class BotMVC extends TelegramLongPollingBot {
             }
 
             for (PartialBotApiMethod<?> sendingMessage : botView.getSendingMessages()) {
-
-                Class<?> classMessage = sendingMessage.getClass();
-                Arrays.stream(TelegramLongPollingBot.class.getMethods())
-                        .filter(method -> method.getName().equals("execute"))
-                        .filter(method -> Arrays.stream(method.getParameterTypes())
-                                .allMatch(p -> p.equals(classMessage) | p.isAssignableFrom(classMessage)))
-                        .findFirst()
-                        .orElseThrow(() -> new RuntimeException("Method execute(" + classMessage + ") not found"))
-                        .invoke(this, sendingMessage);
-
+                methodExecutor.executeVoidMethodWithParameter(this, sendingMessage, "execute");
             }
 
 
-        } catch (MethodMapperException | NotValidPathException | InvocationTargetException | IllegalAccessException e) {
+        } catch (MethodMapperException | NotValidPathException | MethodExecutorException e) {
             log.error("Error execute method", e);
             sendExceptionMessage(session.getId());
         }
