@@ -18,10 +18,11 @@ public class Session {
     private String currentCommand;
     private String nextCommand;
     private Map<String, String> parameters;
-    private Map<String, Object> entities = new HashMap<>();
+    private Map<String, Object> entities;
 
     public Session(long id) {
         this.id = id;
+        this.entities = new HashMap<>();
     }
 
     public void clearTemporary() {

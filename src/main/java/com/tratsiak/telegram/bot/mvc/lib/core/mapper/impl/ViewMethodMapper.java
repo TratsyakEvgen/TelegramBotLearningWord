@@ -3,8 +3,8 @@ package com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotStaticResource;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotViewStaticResource;
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.AbstractMapper;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MapperException;
+import com.tratsiak.telegram.bot.mvc.lib.core.mapper.AbstractMethodMapper;
+import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperException;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,7 +14,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -22,21 +21,9 @@ import java.util.Map;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class ViewMapper extends AbstractMapper {
-    private final ApplicationContext context;
-
-    public ViewMapper(ApplicationContext context) {
-        methodsMap = new HashMap<>();
-        this.context = context;
-    }
-
+public class ViewMethodMapper extends AbstractMethodMapper {
     @Override
-    protected BotView exceptionHandler(Exception e, Method method, Session session) throws MapperException {
-        throw new MapperException("Can't execute method " + method, e);
-    }
-
-    @Override
-    protected void init() {
+    public void init(ApplicationContext context) {
         Map<String, Object> mapControllerBeans = context.getBeansWithAnnotation(BotViewStaticResource.class);
 
         for (String bean : mapControllerBeans.keySet()) {
@@ -60,4 +47,11 @@ public class ViewMapper extends AbstractMapper {
             }
         }
     }
+
+    @Override
+    protected BotView exceptionHandler(Exception e, Method method, Session session) throws MethodMapperException {
+        throw new MethodMapperException("Can't execute method " + method, e);
+    }
+
+
 }

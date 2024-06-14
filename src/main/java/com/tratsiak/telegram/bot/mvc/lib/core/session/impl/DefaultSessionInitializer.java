@@ -1,5 +1,7 @@
-package com.tratsiak.telegram.bot.mvc.lib.core.session;
+package com.tratsiak.telegram.bot.mvc.lib.core.session.impl;
 
+import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionInitializer;
 import org.springframework.stereotype.Component;
 
 @Component

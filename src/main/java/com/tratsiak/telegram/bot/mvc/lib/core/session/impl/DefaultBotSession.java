@@ -1,5 +1,6 @@
-package com.tratsiak.telegram.bot.mvc.lib.core.session;
+package com.tratsiak.telegram.bot.mvc.lib.core.session.impl;
 
+import com.tratsiak.telegram.bot.mvc.lib.core.session.*;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +15,20 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @EqualsAndHashCode
 @ToString
-public class BotSessions {
+public class DefaultBotSession implements BotSession {
 
-    private final Map<Long, Session> sessions = new ConcurrentHashMap<>();
+    private final Map<Long, Session> sessions;
     private final SessionInitializer sessionInitializer;
     private final SessionModifier sessionModifier;
 
     @Autowired
-    public BotSessions(SessionInitializer sessionInitializer, SessionModifier sessionModifier) {
+    public DefaultBotSession(SessionInitializer sessionInitializer, SessionModifier sessionModifier) {
         this.sessionInitializer = sessionInitializer;
         this.sessionModifier = sessionModifier;
+        this.sessions = new ConcurrentHashMap<>();
     }
 
-
+    @Override
     public Session getSession(Update update) throws SessionException {
 
         Session session;
@@ -37,7 +39,7 @@ public class BotSessions {
             CallbackQuery query = update.getCallbackQuery();
             userId = query.getFrom().getId();
 
-            session = getAndModify(userId);
+            session = getOrCreateAndModifySession(userId);
 
             if (session == null) {
                 return null;
@@ -45,7 +47,6 @@ public class BotSessions {
 
             session.setCurrentCommand(query.getData());
             session.setNextCommand(null);
-            // session.setText(query.getMessage().getText());
 
         } else {
             Message message;
@@ -53,7 +54,7 @@ public class BotSessions {
             message = update.getMessage();
             userId = message.getFrom().getId();
 
-            session = getAndModify(userId);
+            session = getOrCreateAndModifySession(userId);
 
             if (session == null) {
                 return null;
@@ -74,7 +75,7 @@ public class BotSessions {
     }
 
 
-    private Session getAndModify(long id) throws SessionException {
+    private Session getOrCreateAndModifySession(long id) throws SessionException {
         Session session = sessions.get(id);
 
         if (session == null) {

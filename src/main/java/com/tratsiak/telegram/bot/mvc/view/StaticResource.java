@@ -85,19 +85,19 @@ public class StaticResource {
     private BotView helpEn(Session session) {
         String text = """
                 1. Добавьте слова в личный словарь:
-                1.1 В главном меню выберете <b>Find word</b>
-                1.2 Ведите словно или его часть на русском или английском
-                1.3 Выберете необходимое слово из списка
+                1.1 В главном меню выберите <b>Find word</b>
+                1.2 Введите словно или его часть на русском или английском
+                1.3 Выберите необходимое слово из списка
                 1.4 Нажмите <b>Add to dictionary</b>
                                 
                 2. Изучайте выбранные слова:
                 2.1 В главном меню выберете <b>Trainings</b>
-                2.2 Выберете тип тренировки <b>English to Russian</b> или <b>Russian to English</b>
-                2.3 Выберете <b>Learn words</b>
+                2.2 Выберите тип тренировки <b>English to Russian</b> или <b>Russian to English</b>
+                2.3 Выберите <b>Learn words</b>
                                 
                 3. Повторяйте слова:
                 3.1 Вы можете отметить слово как изученное нажав <b>Mark as learned</b> во время тренировки или в словаре
-                3.2 После того как у вас появятся выученные слова, вы можете их повторять выбрав в тренировке <b>Repeat words</b>
+                3.2 После того, как у вас появятся выученные слова, вы можете их повторять выбрав в тренировке <b>Repeat words</b>
                 """;
         SendMessage sendMessage = compSendMsg.get(session.getId(), text,
                 compInlineMarkup.get(compInlineBtn.get("Go to main menu", "/start")));

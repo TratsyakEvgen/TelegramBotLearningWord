@@ -1,14 +1,17 @@
-botToken: "7184233396:AAF_faZqh_BJPv3FazplH73jzB9Cq4z26ws"
-botName: "LearnWordsEnglishBot"
+#botToken: "7184233396:AAF_faZqh_BJPv3FazplH73jzB9Cq4z26ws"
+#botName: "LearnWordsEnglishBot"
+botToken: "6870480128:AAE_4j-zccYbX6POZvW3TeCGy5-SzCtMNwA"
+botName: "TestTelegramMVCbot"
+telegram.username: TelegramMVC
+telegram.password: TelegramBotMVC
 
-resource: http://localhost:8080/EnglishWords
-#audio: D:\LearningWords\
-audio: /opt/resources/
+resource: http://45.135.234.35:8080/EnglishWords
+audio: D:\LearningWords\
+#audio: /opt/resources/
 spring:
   main:
     web-application-type: none
-telegram.username: TelegramMVC
-telegram.password: TelegramBotMVC
+
 
 logging:
   file:

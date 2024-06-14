@@ -1,5 +1,7 @@
-package com.tratsiak.telegram.bot.mvc.lib.core.session;
+package com.tratsiak.telegram.bot.mvc.lib.core.session.impl;
 
+import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionModifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
@@ -7,6 +9,6 @@ import org.springframework.stereotype.Component;
 @ConditionalOnMissingBean(SessionModifier.class)
 public class DefaultSessionModifier implements SessionModifier {
     @Override
-    public void modify(Session session) throws Exception {
+    public void modify(Session session){
     }
 }

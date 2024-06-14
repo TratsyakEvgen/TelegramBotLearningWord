@@ -1,9 +1,10 @@
 package com.tratsiak.telegram.bot.mvc.lib.core;
 
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.Mapper;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MapperException;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl.ControllerMapper;
-import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSessions;
+import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapper;
+import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperException;
+import com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl.ControllerMethodMapper;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSession;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.impl.DefaultBotSession;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionException;
 import com.tratsiak.telegram.bot.mvc.lib.util.BotPath;
@@ -26,23 +27,22 @@ import java.util.Arrays;
 @Slf4j
 public class BotMVC extends TelegramLongPollingBot {
 
-    private final Mapper controllerMapper;
-    private final Mapper viewMapper;
-    private final BotSessions botSessions;
-
+    private final MethodMapper controllerMethodMapper;
+    private final MethodMapper viewMethodMapper;
+    private final BotSession botSession;
     private final String botName;
 
     @Autowired
     public BotMVC(@Value("${botToken}") String botToken,
                   @Value("${botName}") String botName,
-                  ControllerMapper controllerMapper,
-                  Mapper viewMapper,
-                  BotSessions botSessions) {
+                  ControllerMethodMapper controllerMapper,
+                  MethodMapper viewMethodMapper,
+                  DefaultBotSession botSession) {
         super(botToken);
-        this.controllerMapper = controllerMapper;
+        this.controllerMethodMapper = controllerMapper;
         this.botName = botName;
-        this.viewMapper = viewMapper;
-        this.botSessions = botSessions;
+        this.viewMethodMapper = viewMethodMapper;
+        this.botSession = botSession;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class BotMVC extends TelegramLongPollingBot {
             if (update.hasCallbackQuery()) {
                 execute(new AnswerCallbackQuery(update.getCallbackQuery().getId()));
             }
-            session = botSessions.getSession(update);
+            session = botSession.getSession(update);
 
             if (session == null) {
                 return;
@@ -86,10 +86,10 @@ public class BotMVC extends TelegramLongPollingBot {
             session.setCurrentCommand(botPath.getPath());
             session.setParameters(botPath.getParameters());
 
-            BotView botView = controllerMapper.executeMethod(path, session);
+            BotView botView = controllerMethodMapper.executeMethod(path, session);
 
             if (botView == null) {
-                botView = viewMapper.executeMethod(path, session);
+                botView = viewMethodMapper.executeMethod(path, session);
             }
 
             if (botView == null) {
@@ -112,7 +112,7 @@ public class BotMVC extends TelegramLongPollingBot {
             }
 
 
-        } catch (MapperException | NotValidPathException | InvocationTargetException | IllegalAccessException e) {
+        } catch (MethodMapperException | NotValidPathException | InvocationTargetException | IllegalAccessException e) {
             log.error("Error execute method", e);
             sendExceptionMessage(session.getId());
         }

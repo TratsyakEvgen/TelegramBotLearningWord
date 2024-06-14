@@ -42,7 +42,7 @@ public class TrainingTranslate {
 
 
         String transcription = engToRus.getTranscription();
-        if (transcription != null) {
+        if (!transcription.isEmpty()) {
             builder.append("<b>transcription: </b>").append(transcription).append("\n\n");
         }
 
@@ -89,7 +89,7 @@ public class TrainingTranslate {
             builder.append("<b>").append(number).append(". </b>").append(word.getEnglish()).append("\n");
 
             String transcription = word.getTranscription();
-            if (transcription != null) {
+            if (!transcription.isEmpty()) {
                 builder.append(transcription).append("\n");
             }
 

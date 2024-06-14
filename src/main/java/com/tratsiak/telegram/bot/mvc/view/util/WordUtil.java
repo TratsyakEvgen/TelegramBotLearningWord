@@ -25,7 +25,7 @@ public class WordUtil {
         String string = "<b>English: </b>" + word.getEnglish();
 
         String transcription = word.getTranscription();
-        if (transcription != null) {
+        if (!transcription.isEmpty()) {
             string = string + "\n<b>Transcription: </b>" + transcription;
         }
 

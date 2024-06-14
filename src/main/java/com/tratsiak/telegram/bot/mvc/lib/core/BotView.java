@@ -13,9 +13,10 @@ import java.util.List;
 @ToString
 public class BotView {
 
-    private List<PartialBotApiMethod<?>> sendingMessages = new ArrayList<>();
+    private List<PartialBotApiMethod<?>> sendingMessages;
 
     public BotView(PartialBotApiMethod<?> message) {
+        this.sendingMessages = new ArrayList<>();
         sendingMessages.add(message);
     }
 

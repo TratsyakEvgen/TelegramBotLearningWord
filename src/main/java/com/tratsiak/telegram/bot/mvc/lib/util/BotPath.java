@@ -40,12 +40,12 @@ public class BotPath {
     }
 
     public static void validatePathWithParameters(String path) throws NotValidPathException {
-        validate(path, "(/[\\p{IsAlphabetic}\\d]+)+(\\?([\\p{IsAlphabetic}\\d]+=[\\p{IsAlphabetic}\\d]+)" +
-                "(&[\\p{IsAlphabetic}\\d]+=[\\p{IsAlphabetic}\\d]+)*)?");
+        validate(path, "(/[\\p{IsAlphabetic}\\d\\-]+)+(\\?([\\p{IsAlphabetic}\\d\\-]+=[\\p{IsAlphabetic}\\d\\-]+)" +
+                "(&[\\p{IsAlphabetic}\\d\\-]+=[\\p{IsAlphabetic}\\d\\-]+)*)?");
     }
 
     public static void validatePath(String path) throws NotValidPathException {
-        validate(path, "(/[\\p{IsAlphabetic}\\d]+)+");
+        validate(path, "(/[\\p{IsAlphabetic}\\d\\-]+)+");
     }
 
     private static void validate(String path, String regex) throws NotValidPathException {

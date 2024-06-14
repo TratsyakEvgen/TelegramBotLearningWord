@@ -4,24 +4,29 @@ import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.util.BotPath;
 import com.tratsiak.telegram.bot.mvc.lib.util.NotValidPathException;
-import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 
 @Getter
 @Setter
-public abstract class AbstractMapper implements Mapper {
+public abstract class AbstractMethodMapper implements MethodMapper {
 
     protected Map<String, MethodOfObject> methodsMap;
 
+    public AbstractMethodMapper() {
+        this.methodsMap = new HashMap<>();
+    }
+
     @Override
-    public BotView executeMethod(String path, Session session) throws MapperException {
+    public BotView executeMethod(String path, Session session) throws MethodMapperException {
         MethodOfObject methodOfObject = methodsMap.get(path);
 
         if (methodOfObject == null) {
@@ -38,10 +43,10 @@ public abstract class AbstractMapper implements Mapper {
         return botView;
     }
 
-    protected abstract BotView exceptionHandler(Exception e, Method method, Session session) throws MapperException;
+    @Override
+    public abstract void init(ApplicationContext context);
 
-    @PostConstruct
-    protected abstract void init();
+    protected abstract BotView exceptionHandler(Exception e, Method method, Session session) throws MethodMapperException;
 
     protected void put(String finalPath, Method method, Object object) {
         try {
