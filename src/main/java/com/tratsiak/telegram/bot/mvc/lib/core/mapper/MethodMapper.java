@@ -7,5 +7,6 @@ import org.springframework.context.ApplicationContext;
 public interface MethodMapper {
 
     BotView executeMethod(String path, Session session) throws MethodMapperException;
-    void init(ApplicationContext context);
+
+    void init(ApplicationContext context) throws MethodMapperException;
 }

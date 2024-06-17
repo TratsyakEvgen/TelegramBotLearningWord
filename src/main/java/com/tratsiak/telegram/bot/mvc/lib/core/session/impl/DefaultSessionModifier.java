@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 @ConditionalOnMissingBean(SessionModifier.class)
 public class DefaultSessionModifier implements SessionModifier {
     @Override
-    public void modify(Session session){
+    public void modify(Session session) {
     }
 }

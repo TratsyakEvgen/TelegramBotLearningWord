@@ -103,7 +103,7 @@ public class TrainingTranslate {
         InlineKeyboardMarkup.InlineKeyboardMarkupBuilder markupBuilder = InlineKeyboardMarkup.builder();
         compInlineMarkup.row(markupBuilder, buttons);
 
-        String callback =String.format("/rusToEng/update?status=%b&id=%d", !status, id);
+        String callback = String.format("/rusToEng/update?status=%b&id=%d", !status, id);
 
         return getBotView(userId, status, builder, markupBuilder, callback);
     }

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+
 @EqualsAndHashCode
 @ToString
 public class DefaultBotSession implements BotSession {
@@ -42,7 +43,7 @@ public class DefaultBotSession implements BotSession {
             session = getOrCreateAndModifySession(userId);
 
             if (session == null) {
-                return null;
+                throw new SessionException("Session should not be null");
             }
 
             session.setCurrentCommand(query.getData());
@@ -57,7 +58,7 @@ public class DefaultBotSession implements BotSession {
             session = getOrCreateAndModifySession(userId);
 
             if (session == null) {
-                return null;
+                throw new SessionException("Session should not be null");
             }
 
             session.setText(message.getText());

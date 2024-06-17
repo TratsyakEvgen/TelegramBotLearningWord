@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.controller.exception;
 
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.ResponseException;
+import com.tratsiak.telegram.bot.mvc.lib.exception.ResponseException;
 import com.tratsiak.telegram.bot.mvc.repository.exception.LevelException;
 import com.tratsiak.telegram.bot.mvc.repository.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;

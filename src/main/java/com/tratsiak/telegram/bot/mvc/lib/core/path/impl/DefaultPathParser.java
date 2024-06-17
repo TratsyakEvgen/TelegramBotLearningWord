@@ -1,7 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.path.impl;
 
 import com.tratsiak.telegram.bot.mvc.lib.core.path.PathParser;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -9,7 +8,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-@ConditionalOnMissingBean(PathParser.class)
 public class DefaultPathParser implements PathParser {
     @Override
     public String getPath(String path) {

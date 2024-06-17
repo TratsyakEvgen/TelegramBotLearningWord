@@ -2,11 +2,9 @@ package com.tratsiak.telegram.bot.mvc.lib.core.path.impl;
 
 import com.tratsiak.telegram.bot.mvc.lib.core.path.NotValidPathException;
 import com.tratsiak.telegram.bot.mvc.lib.core.path.PathValidator;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnMissingBean(PathValidator.class)
 public class DefaultPathValidator implements PathValidator {
 
     @Override

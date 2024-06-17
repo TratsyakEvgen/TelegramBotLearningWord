@@ -7,9 +7,7 @@ import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,27 +35,21 @@ public abstract class AbstractMethodMapper implements MethodMapper {
         if (methodOfObject == null) {
             return null;
         }
-
-        BotView botView;
-
         try {
-            botView = (BotView) methodOfObject.method.invoke(methodOfObject.object, session);
+            return (BotView) methodOfObject.method.invoke(methodOfObject.object, session);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            botView = exceptionHandler(e, methodOfObject.method, session);
+            throw new MethodMapperException("Can't invoke method");
         }
-        return botView;
     }
 
     @Override
-    public abstract void init(ApplicationContext context);
+    public abstract void init(ApplicationContext context) throws MethodMapperException;
 
-    protected abstract BotView exceptionHandler(Exception e, Method method, Session session) throws MethodMapperException;
-
-    protected void put(String finalPath, Method method, Object object) {
+    protected void put(String finalPath, Method method, Object object) throws MethodMapperException {
         try {
             pathValidator.isValidPath(finalPath);
         } catch (NotValidPathException e) {
-            throw new RuntimeException(e);
+            throw new MethodMapperException("Not valid path", e);
         }
         method.setAccessible(true);
         methodsMap.put(finalPath, new MethodOfObject(object, method));

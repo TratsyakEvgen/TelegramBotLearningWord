@@ -1,4 +1,4 @@
-package com.tratsiak.telegram.bot.mvc.lib.core.mapper;
+package com.tratsiak.telegram.bot.mvc.lib.exception;
 
 import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
 import lombok.Getter;
