@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.security;
 
-public class JwtProviderException extends Exception {
+public class JwtProviderException extends RuntimeException {
     public JwtProviderException() {
     }
 

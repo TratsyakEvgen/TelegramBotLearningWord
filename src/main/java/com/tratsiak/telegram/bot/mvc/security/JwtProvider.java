@@ -35,7 +35,7 @@ public class JwtProvider implements SessionModifier {
     }
 
     @Override
-    public void modify(Session session) throws JwtProviderException {
+    public void modify(Session session) {
         Token token = (Token) session.getEntity(JWT_NAME);
         Date date = new Date(System.currentTimeMillis() + 10 * 1000);
 

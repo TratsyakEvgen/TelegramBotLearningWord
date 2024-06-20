@@ -1,9 +1,8 @@
-package com.tratsiak.telegram.bot.mvc.lib.core.mapper.impl;
+package com.tratsiak.telegram.bot.mvc.lib.core.dispatcher.impl;
 
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotStaticResource;
 import com.tratsiak.telegram.bot.mvc.lib.annotation.BotViewStaticResource;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.AbstractMethodMapper;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperException;
+import com.tratsiak.telegram.bot.mvc.lib.core.dispatcher.AbstractDispatcherRequests;
 import com.tratsiak.telegram.bot.mvc.lib.core.path.PathValidator;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,14 +20,14 @@ import java.util.Map;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class DefaultViewMethodMapper extends AbstractMethodMapper {
+public class DefaultViewDispatcherRequests extends AbstractDispatcherRequests {
     @Autowired
-    public DefaultViewMethodMapper(PathValidator pathValidator) {
+    public DefaultViewDispatcherRequests(PathValidator pathValidator) {
         super(pathValidator);
     }
 
     @Override
-    public void init(ApplicationContext context) throws MethodMapperException {
+    public void init(ApplicationContext context) {
         Map<String, Object> mapControllerBeans = context.getBeansWithAnnotation(BotViewStaticResource.class);
 
         for (String bean : mapControllerBeans.keySet()) {

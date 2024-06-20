@@ -10,18 +10,20 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class DefaultMapperExceptionHandlers implements MapperExceptionHandler {
 
     private final ApplicationContext context;
-    private Map<Class<?>, ExceptionHandler<? extends Exception>> handlerMap;
+    private final Map<Class<?>, ExceptionHandler<? extends Exception>> handlerMap;
 
 
     @Autowired
     public DefaultMapperExceptionHandlers(ApplicationContext context) {
         this.context = context;
+        this.handlerMap = new HashMap<>();
     }
 
     @Override

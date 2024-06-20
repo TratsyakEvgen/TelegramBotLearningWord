@@ -1,10 +1,10 @@
 package com.tratsiak.telegram.bot.mvc.lib.core;
 
+import com.tratsiak.telegram.bot.mvc.lib.core.dispatcher.DispatcherRequests;
+import com.tratsiak.telegram.bot.mvc.lib.core.dispatcher.ExecuteMethodDispatcherRequestsException;
+import com.tratsiak.telegram.bot.mvc.lib.core.dispatcher.DispatchersRequestsInitializer;
 import com.tratsiak.telegram.bot.mvc.lib.core.exeption.handler.ErrorViewer;
 import com.tratsiak.telegram.bot.mvc.lib.core.exeption.handler.MapperExceptionHandler;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapper;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperException;
-import com.tratsiak.telegram.bot.mvc.lib.core.mapper.MethodMapperInitializer;
 import com.tratsiak.telegram.bot.mvc.lib.core.path.NotValidPathException;
 import com.tratsiak.telegram.bot.mvc.lib.core.path.PathParser;
 import com.tratsiak.telegram.bot.mvc.lib.core.path.PathValidator;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -32,7 +31,7 @@ import java.util.List;
 @Slf4j
 public class BotMVC extends TelegramLongPollingBot {
 
-    private final MethodMapperInitializer methodMapperInitializer;
+    private final DispatchersRequestsInitializer dispatchersRequestsInitializer;
     private final PathValidator pathValidator;
     private final PathParser pathParser;
     private final MethodExecutor methodExecutor;
@@ -43,14 +42,14 @@ public class BotMVC extends TelegramLongPollingBot {
 
     @Autowired
     public BotMVC(@Value("${botToken}") String botToken,
-                  MethodMapperInitializer methodMapperInitializer,
+                  DispatchersRequestsInitializer dispatchersRequestsInitializer,
                   PathValidator pathValidator,
                   PathParser pathParser,
                   MethodExecutor methodExecutor,
                   @Value("${botName}") String botName,
                   DefaultBotSession botSession, MapperExceptionHandler mapperExceptionHandler, ErrorViewer errorViewer) {
         super(botToken);
-        this.methodMapperInitializer = methodMapperInitializer;
+        this.dispatchersRequestsInitializer = dispatchersRequestsInitializer;
         this.pathValidator = pathValidator;
         this.pathParser = pathParser;
         this.methodExecutor = methodExecutor;
@@ -74,18 +73,13 @@ public class BotMVC extends TelegramLongPollingBot {
 
     private void sendAnswer(Update update) {
 
-        Session session;
+        Session session = botSession.getSession(update);
 
-        try {
-            session = botSession.getSession(update);
-        } catch (SessionException e) {
-            log.error("Session error", e);
-            return;
-        }
 
         BotView botView = null;
 
         try {
+
             if (update.hasCallbackQuery()) {
                 execute(new AnswerCallbackQuery(update.getCallbackQuery().getId()));
             }
@@ -97,20 +91,16 @@ public class BotMVC extends TelegramLongPollingBot {
             session.setParameters(pathParser.getParam(path));
 
 
-            Collection<MethodMapper> mappers = methodMapperInitializer.getMethodMappers().values();
-            for (MethodMapper mapper : mappers) {
+            Collection<DispatcherRequests> mappers = dispatchersRequestsInitializer.getDispatcherRequestsMap().values();
+            for (DispatcherRequests mapper : mappers) {
                 botView = mapper.executeMethod(path, session);
                 if (botView != null) {
                     break;
                 }
             }
 
-            if (botView == null) {
-                log.error(String.format("Endpoint '%s' not found", path));
-            }
 
-
-        } catch (MethodMapperException | NotValidPathException | TelegramApiException e) {
+        } catch (Exception e) {
             botView = mapperExceptionHandler.handle(e, session);
             if (botView == null) {
                 log.error("Core error", e);

@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -30,7 +31,7 @@ public class DefaultBotSession implements BotSession {
     }
 
     @Override
-    public Session getSession(Update update) throws SessionException {
+    public Session getSession(Update update) {
 
         Session session;
         long userId;
@@ -42,10 +43,6 @@ public class DefaultBotSession implements BotSession {
 
             session = getOrCreateAndModifySession(userId);
 
-            if (session == null) {
-                throw new SessionException("Session should not be null");
-            }
-
             session.setCurrentCommand(query.getData());
             session.setNextCommand(null);
 
@@ -56,10 +53,6 @@ public class DefaultBotSession implements BotSession {
             userId = message.getFrom().getId();
 
             session = getOrCreateAndModifySession(userId);
-
-            if (session == null) {
-                throw new SessionException("Session should not be null");
-            }
 
             session.setText(message.getText());
             session.setCurrentCommand(session.getNextCommand());
@@ -76,25 +69,9 @@ public class DefaultBotSession implements BotSession {
     }
 
 
-    private Session getOrCreateAndModifySession(long id) throws SessionException {
-        Session session = sessions.get(id);
-
-        if (session == null) {
-            try {
-                session = sessionInitializer.init(id);
-            } catch (Exception e) {
-                throw new SessionException("Can't init session", e);
-            }
-        }
-
-        if (session != null) {
-            try {
-                sessionModifier.modify(session);
-            } catch (Exception e) {
-                throw new SessionException("Can't modify session", e);
-            }
-        }
-
-        return session;
+    private Session getOrCreateAndModifySession(long id) {
+        Optional<Session> optionalSession = Optional.ofNullable(sessions.get(id));
+        optionalSession.or(() -> sessionInitializer.init(id)).ifPresent(sessionModifier::modify);
+        return optionalSession.orElseThrow(() -> new SessionException("Session should not be null"));
     }
 }
