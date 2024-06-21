@@ -22,12 +22,12 @@ import java.util.Map;
 @ToString
 public class DefaultViewDispatcherRequests extends AbstractDispatcherRequests {
     @Autowired
-    public DefaultViewDispatcherRequests(PathValidator pathValidator) {
-        super(pathValidator);
+    public DefaultViewDispatcherRequests(PathValidator pathValidator, ApplicationContext context) {
+        super(pathValidator, context);
     }
 
     @Override
-    public void init(ApplicationContext context) {
+    public void init() {
         Map<String, Object> mapControllerBeans = context.getBeansWithAnnotation(BotViewStaticResource.class);
 
         for (String bean : mapControllerBeans.keySet()) {

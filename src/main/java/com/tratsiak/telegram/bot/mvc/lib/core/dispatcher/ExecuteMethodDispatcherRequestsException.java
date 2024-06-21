@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.dispatcher;
 
-public class ExecuteMethodDispatcherRequestsException extends Exception {
+public class ExecuteMethodDispatcherRequestsException extends RuntimeException {
 
     public ExecuteMethodDispatcherRequestsException() {
     }

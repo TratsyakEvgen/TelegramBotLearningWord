@@ -4,6 +4,8 @@ import com.tratsiak.telegram.bot.mvc.lib.core.dispatcher.DispatcherRequests;
 import com.tratsiak.telegram.bot.mvc.lib.core.dispatcher.DispatchersRequestsInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -20,9 +22,10 @@ public class DefaultDispatchersRequestsInitializer implements DispatchersRequest
     }
 
     @Override
+    @EventListener(classes = ContextRefreshedEvent.class)
     public void init() {
         dispatcherRequestsMap = context.getBeansOfType(DispatcherRequests.class);
-        dispatcherRequestsMap.forEach((string, dispatcherRequests) -> dispatcherRequests.init(context));
+        dispatcherRequestsMap.forEach((string, dispatcherRequests) -> dispatcherRequests.init());
 
     }
 

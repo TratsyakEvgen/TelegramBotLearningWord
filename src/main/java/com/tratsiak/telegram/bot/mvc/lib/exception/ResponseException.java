@@ -1,20 +1,19 @@
 package com.tratsiak.telegram.bot.mvc.lib.exception;
 
-import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
+import com.tratsiak.telegram.bot.mvc.lib.core.View;
 import lombok.Getter;
 
 @Getter
 public class ResponseException extends RuntimeException {
 
-    private BotView botView;
+    private View view;
 
     public ResponseException(String message) {
         super(message);
     }
 
-    public ResponseException(BotView botView) {
-        super();
-        this.botView = botView;
+    public ResponseException(View view) {
+        this.view = view;
     }
 
 }

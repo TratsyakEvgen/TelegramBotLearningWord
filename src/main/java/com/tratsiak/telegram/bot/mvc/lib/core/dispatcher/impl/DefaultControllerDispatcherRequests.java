@@ -23,12 +23,12 @@ import java.util.Map;
 public class DefaultControllerDispatcherRequests extends AbstractDispatcherRequests {
 
     @Autowired
-    public DefaultControllerDispatcherRequests(PathValidator pathValidator) {
-        super(pathValidator);
+    public DefaultControllerDispatcherRequests(PathValidator pathValidator, ApplicationContext context) {
+        super(pathValidator, context);
     }
 
     @Override
-    public void init(ApplicationContext context) {
+    public void init() {
         Map<String, Object> mapControllerBeans = context.getBeansWithAnnotation(BotController.class);
 
 

@@ -1,12 +1,12 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.dispatcher;
 
-import com.tratsiak.telegram.bot.mvc.lib.core.BotView;
+import com.tratsiak.telegram.bot.mvc.lib.core.View;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
-import org.springframework.context.ApplicationContext;
+
+import java.util.Optional;
 
 public interface DispatcherRequests {
+    Optional<View> executeMethod(Session session);
 
-    BotView executeMethod(String path, Session session) throws ExecuteMethodDispatcherRequestsException;
-
-    void init(ApplicationContext context);
+    void init();
 }

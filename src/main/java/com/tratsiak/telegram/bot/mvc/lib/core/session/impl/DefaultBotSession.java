@@ -1,6 +1,9 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.session.impl;
 
-import com.tratsiak.telegram.bot.mvc.lib.core.session.*;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSession;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionException;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionInitializer;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +17,16 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-
 @EqualsAndHashCode
 @ToString
 public class DefaultBotSession implements BotSession {
 
     private final Map<Long, Session> sessions;
     private final SessionInitializer sessionInitializer;
-    private final SessionModifier sessionModifier;
 
     @Autowired
-    public DefaultBotSession(SessionInitializer sessionInitializer, SessionModifier sessionModifier) {
+    public DefaultBotSession(SessionInitializer sessionInitializer) {
         this.sessionInitializer = sessionInitializer;
-        this.sessionModifier = sessionModifier;
         this.sessions = new ConcurrentHashMap<>();
     }
 
@@ -70,8 +70,8 @@ public class DefaultBotSession implements BotSession {
 
 
     private Session getOrCreateAndModifySession(long id) {
-        Optional<Session> optionalSession = Optional.ofNullable(sessions.get(id));
-        optionalSession.or(() -> sessionInitializer.init(id)).ifPresent(sessionModifier::modify);
-        return optionalSession.orElseThrow(() -> new SessionException("Session should not be null"));
+        return Optional.ofNullable(sessions.get(id))
+                .or(() -> sessionInitializer.init(id))
+                .orElseThrow(() -> new SessionException("Session should not be null"));
     }
 }
