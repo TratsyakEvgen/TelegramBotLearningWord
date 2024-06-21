@@ -6,10 +6,10 @@ import com.tratsiak.telegram.bot.mvc.lib.core.exeption.handler.ErrorViewer;
 import com.tratsiak.telegram.bot.mvc.lib.core.exeption.handler.MapperExceptionHandler;
 import com.tratsiak.telegram.bot.mvc.lib.core.path.PathParser;
 import com.tratsiak.telegram.bot.mvc.lib.core.path.PathValidator;
-import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSession;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSessions;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionModifier;
-import com.tratsiak.telegram.bot.mvc.lib.core.session.impl.DefaultBotSession;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.impl.DefaultBotSessions;
 import com.tratsiak.telegram.bot.mvc.lib.util.reflection.method.executor.MethodExecutor;
 import com.tratsiak.telegram.bot.mvc.lib.util.reflection.method.executor.MethodExecutorException;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class BotMVC extends TelegramLongPollingBot {
     private final PathValidator pathValidator;
     private final PathParser pathParser;
     private final MethodExecutor methodExecutor;
-    private final BotSession botSession;
+    private final BotSessions botSessions;
     private final MapperExceptionHandler mapperExceptionHandler;
     private final ErrorViewer errorViewer;
     private final String botName;
@@ -46,14 +46,14 @@ public class BotMVC extends TelegramLongPollingBot {
                   PathParser pathParser,
                   MethodExecutor methodExecutor,
                   @Value("${botName}") String botName,
-                  DefaultBotSession botSession, MapperExceptionHandler mapperExceptionHandler, ErrorViewer errorViewer, SessionModifier sessionModifier) {
+                  DefaultBotSessions botSession, MapperExceptionHandler mapperExceptionHandler, ErrorViewer errorViewer, SessionModifier sessionModifier) {
         super(botToken);
         this.dispatchersRequestsInitializer = dispatchersRequestsInitializer;
         this.pathValidator = pathValidator;
         this.pathParser = pathParser;
         this.methodExecutor = methodExecutor;
         this.botName = botName;
-        this.botSession = botSession;
+        this.botSessions = botSession;
         this.mapperExceptionHandler = mapperExceptionHandler;
         this.errorViewer = errorViewer;
         this.sessionModifier = sessionModifier;
@@ -74,7 +74,7 @@ public class BotMVC extends TelegramLongPollingBot {
 
         Session session;
         try {
-            session = botSession.getSession(update);
+            session = botSessions.getSession(update);
         } catch (Exception e) {
             log.error("Can't get session", e);
             return;
@@ -130,6 +130,11 @@ public class BotMVC extends TelegramLongPollingBot {
             log.error("Core error", e);
         }
 
-        session.clearTemporary();
+
+        session.setPastCommand(session.getCurrentCommand());
+        session.setTextMessage(null);
+        session.setCurrentCommand(null);
+        session.setParameters(null);
+
     }
 }

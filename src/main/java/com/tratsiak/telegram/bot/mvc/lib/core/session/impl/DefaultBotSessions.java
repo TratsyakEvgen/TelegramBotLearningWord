@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.lib.core.session.impl;
 
-import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSession;
+import com.tratsiak.telegram.bot.mvc.lib.core.session.BotSessions;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionException;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionInitializer;
@@ -19,13 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @EqualsAndHashCode
 @ToString
-public class DefaultBotSession implements BotSession {
+public class DefaultBotSessions implements BotSessions {
 
     private final Map<Long, Session> sessions;
     private final SessionInitializer sessionInitializer;
 
     @Autowired
-    public DefaultBotSession(SessionInitializer sessionInitializer) {
+    public DefaultBotSessions(SessionInitializer sessionInitializer) {
         this.sessionInitializer = sessionInitializer;
         this.sessions = new ConcurrentHashMap<>();
     }
@@ -54,7 +54,7 @@ public class DefaultBotSession implements BotSession {
 
             session = getOrCreateAndModifySession(userId);
 
-            session.setText(message.getText());
+            session.setTextMessage(message.getText());
             session.setCurrentCommand(session.getNextCommand());
             session.setNextCommand(null);
 

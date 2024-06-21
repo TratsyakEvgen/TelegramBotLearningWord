@@ -39,7 +39,7 @@ public class WordController {
     @BotRequestMapping(path = "/find")
     private BotView getWords(Session session) {
         int page = Integer.parseInt(session.getParam("page"));
-        String part = session.getText();
+        String part = session.getTextMessage();
         if (part == null) {
             part = session.getParam("part");
         }
