@@ -11,7 +11,6 @@ import com.tratsiak.telegram.bot.mvc.lib.core.session.Session;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.SessionModifier;
 import com.tratsiak.telegram.bot.mvc.lib.core.session.impl.DefaultBotSessions;
 import com.tratsiak.telegram.bot.mvc.lib.util.reflection.method.executor.MethodExecutor;
-import com.tratsiak.telegram.bot.mvc.lib.util.reflection.method.executor.MethodExecutorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,7 +95,6 @@ public class BotMVC extends TelegramLongPollingBot {
 
             sessionModifier.modify(session);
 
-
             Collection<DispatcherRequests> mappers = dispatchersRequestsInitializer.getDispatcherRequestsMap().values();
             for (DispatcherRequests dispatcherRequests : mappers) {
                 optionalView = dispatcherRequests.executeMethod(session);
@@ -117,24 +115,23 @@ public class BotMVC extends TelegramLongPollingBot {
             }
         }
 
-
-        List<PartialBotApiMethod<?>> messages = optionalView
-                .orElseGet(() -> errorViewer.getDefaultError(session))
-                .getMessages();
-
         try {
+            List<PartialBotApiMethod<?>> messages = optionalView
+                    .orElseGet(() -> errorViewer.getDefaultError(session))
+                    .getMessages();
+
             for (PartialBotApiMethod<?> sendingMessage : messages) {
                 methodExecutor.executeVoidMethodWithParameter(this, sendingMessage, "execute");
             }
-        } catch (MethodExecutorException e) {
+        } catch (Exception e) {
             log.error("Core error", e);
+        } finally {
+            session.setPastCommand(session.getCurrentCommand());
+            session.setTextMessage(null);
+            session.setCurrentCommand(null);
+            session.setParameters(null);
         }
 
-
-        session.setPastCommand(session.getCurrentCommand());
-        session.setTextMessage(null);
-        session.setCurrentCommand(null);
-        session.setParameters(null);
 
     }
 }

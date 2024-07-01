@@ -6,14 +6,14 @@ import lombok.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@NoArgsConstructor
+
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
 public class DefaultSession implements Session {
 
-    private long id;
+    private final long id;
     private String textMessage;
     private String pastCommand;
     private String currentCommand;

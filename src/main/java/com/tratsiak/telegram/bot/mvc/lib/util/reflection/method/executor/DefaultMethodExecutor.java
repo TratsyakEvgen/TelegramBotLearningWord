@@ -9,7 +9,7 @@ import java.util.Arrays;
 @Component
 public class DefaultMethodExecutor implements MethodExecutor {
     @Override
-    public void executeVoidMethodWithParameter(Object object, Object param, String paramName) throws MethodExecutorException {
+    public void executeVoidMethodWithParameter(Object object, Object param, String paramName){
         Class<?> paramClass = param.getClass();
         try {
             Arrays.stream(object.getClass().getMethods())

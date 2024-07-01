@@ -1,6 +1,6 @@
 package com.tratsiak.telegram.bot.mvc.lib.util.reflection.method.executor;
 
-public class MethodExecutorException extends Exception {
+public class MethodExecutorException extends RuntimeException {
     public MethodExecutorException() {
     }
 

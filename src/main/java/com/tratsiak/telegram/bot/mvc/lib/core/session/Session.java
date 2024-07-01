@@ -8,8 +8,6 @@ public interface Session {
 
     long getId();
 
-    void setId(long id);
-
     String getPastCommand();
 
     void setPastCommand(String pastCommand);
